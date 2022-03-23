@@ -15,10 +15,7 @@ upload_parser.add_argument('file',
 class Upload(Resource):
     def post(self):
         args = upload_parser.parse_args()
-        print("args:", args)
         uploaded_file = args['file']
-        print("uploaded file:", uploaded_file)
-        time.sleep(5)
         return {'upload': 'complete'}, 201
 
     def get(self):
