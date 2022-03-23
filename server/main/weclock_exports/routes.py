@@ -1,4 +1,4 @@
-from flask_restplus import Resource
+from flask_restx import Resource
 from . import weclock_exports_ns as ns
 from werkzeug.datastructures import FileStorage
 

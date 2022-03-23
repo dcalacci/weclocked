@@ -3,6 +3,7 @@ class Config(object):
     DEVELOPMENT = True
     SECRET_KEY = 'do-i-really-need-this'
     FLASK_SECRET = SECRET_KEY
+    TESTING = False
 
 class ProductionConfig(Config):
     DEVELOPMENT = False
@@ -11,3 +12,8 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True 
     DEBUG = True
+
+class TestingConfig(Config):
+    DEVELOPMENT = True 
+    DEBUG = True
+    TESTING = True
