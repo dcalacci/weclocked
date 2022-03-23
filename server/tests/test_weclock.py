@@ -20,3 +20,16 @@ def test_geo_csv_extracted_successfully(wc):
     assert all([t == 'geologging' for t in gdf.type])
     assert gdf.value1.dtype == float
     assert gdf is not None
+
+def test_upload_to_google_sheets(wc):
+    wb_url = wc.to_google_sheet()
+    print(wb_url)
+    assert wb_url is not None
+
+def test_workbook_is_shared_with_email(wc):
+    wb_url = wc.to_google_sheet()
+    wc.share_sheet("dcalacci@media.mit.edu")
+    shared_df = wc.workbook.fetch_permissions()
+    assert shared_df is not None
+    assert 'dcalacci@media.mit.edu' in list(shared_df['email'])
+

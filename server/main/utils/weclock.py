@@ -1,5 +1,6 @@
 import pandas as pd
-
+import datasheets
+from human_id import generate_id
 class WeClockExport:
     def __init__(self, filename):
         self.filename = filename
@@ -21,4 +22,19 @@ class WeClockExport:
             .drop(['idx'], axis=1)
             )
         return geodf
+
+    def to_google_sheet(self):
+        client = datasheets.Client(service=True)
+        wb_id = generate_id()
+        self.workbook = client.create_workbook(wb_id)
+        tab = self.workbook.create_tab('all_data')
+        tab.insert_data(self.df, index=False)
+        return {'url': self.workbook.url, 'name': wb_id}
+
+    def share_sheet(self, email):
+        self.workbook.share(email=email,
+                            role='writer',
+                            notify=True,
+                            message="Your WeClock export is ready for you to view!")
+
 
