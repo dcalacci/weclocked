@@ -193,6 +193,10 @@ const GoogleLogin: Component = () => {
       "file",
       file,
     )
+    formData.append(
+      'email',
+      email
+    )
     try {
       const response = await axios.post('http://localhost:5000/exports/upload/', formData, {
         headers: {
@@ -200,7 +204,10 @@ const GoogleLogin: Component = () => {
         },
         onUploadProgress
       })
-      return response
+      if (response.data.wb_info) {
+        console.log("wb info:", response.data.wb_info)
+        return response.data
+      }
     } catch (error) {
       console.log("error:", error)
       if (error.response) {
@@ -321,11 +328,11 @@ const GoogleLogin: Component = () => {
           </Switch>
           <div>
             <Switch>
-              <Match when={data.loading}>
-                <ProgressSpinner percent={uploadPercent()} />
-              </Match>
               <Match when={!data.loading && !data()}>
                 <UploadButton onClick={onFileUpload} disabled={!uploadedFile()} text={"Upload"} />
+              </Match>
+              <Match when={data.loading}>
+                <ProgressSpinner percent={uploadPercent()} />
               </Match>
               <Match when={!data.loading && data()}>
                 <p class="
@@ -341,10 +348,23 @@ const GoogleLogin: Component = () => {
                   ">
                   Done!
                 </p>
+                <a href={data().wb_info.url}>
+                  <p class="
+                  transition ease-in
+                  m-2
+                  p-2
+                  rounded-sm
+                  border-4
+                  text-slate-500
+                  font-semibold
+                  text-center
+                  border-slate-500
+                  ">
+                    Go To Google Sheet
+                  </p>
+                </a>
               </Match>
             </Switch>
-            <Show when={!data.loading && data()}>
-            </Show>
             <Show when={uploadedFile() != null && !data()}>
               <p
                 onClick={cancelUpload}
