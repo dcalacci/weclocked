@@ -1,19 +1,22 @@
+from io import BufferedReader
 import pandas as pd
 import datasheets
+from typing import Union
 from human_id import generate_id
 
+FilenameOrBuffer = Union[BufferedReader, str]
+
 class WeClockExport:
-    def __init__(self, filename_or_file):
-        self.filename_or_file = filename_or_file
+    def __init__(self, filename_or_buffer: FilenameOrBuffer ):
+        self.filename_or_file = filename_or_buffer
         self.df = self.parse_export_file(self.filename_or_file)
 
-    def parse_export_file(self, filename_or_file):
-        df = (pd.read_csv(filename_or_file,
-                        names = ["idx", "id", "type", "date", "time", "value1", "value2"],
+    def parse_export_file(self, filename_or_buffer):
+        df = (pd.read_csv(filename_or_buffer,
+                        names=["idx", "id", "type", "date", "time", "value1", "value2"],
                         parse_dates=[['date', 'time']]
-                         )
-              .drop(['id'], axis=1)
-             )
+                         ).drop(['id'], axis=1)
+        )
         return df
 
     def geo_df(self):

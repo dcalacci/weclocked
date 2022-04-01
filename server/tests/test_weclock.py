@@ -6,7 +6,7 @@ resources = Path(__file__).parent / "resources"
 
 @pytest.fixture(scope='session')
 def wc():
-    wc = WeClockExport((resources / "data.csv"))
+    wc = WeClockExport(str(resources / "data.csv"))
     wb_info = wc.to_google_sheet()
     return wc
 
@@ -36,6 +36,3 @@ def test_workbook_is_shared_with_email(wc):
     shared_df = wc.workbook.fetch_permissions()
     assert shared_df is not None
     assert 'dcalacci@media.mit.edu' in list(shared_df['email'])
-
-# def test_workbook_is_accessible_by_email(wc):
-    # TODO
