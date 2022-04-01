@@ -10,6 +10,7 @@ class WeClockExport:
     def __init__(self, filename_or_buffer: FilenameOrBuffer ):
         self.filename_or_file = filename_or_buffer
         self.df = self.parse_export_file(self.filename_or_file)
+        print(self.df)
 
     def parse_export_file(self, filename_or_buffer):
         df = (pd.read_csv(filename_or_buffer,

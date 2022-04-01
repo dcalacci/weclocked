@@ -1,5 +1,6 @@
 import pytest
 from main import create_app
+from main.utils.strings import ErrorStrings
 
 @pytest.fixture(scope="session")
 def app():
