@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import datasheets
 from human_id import generate_id
 
@@ -7,9 +8,9 @@ class WeClockExport:
         self.filename_or_file = filename_or_file
         self.df = self.parse_export_file(self.filename_or_file)
 
-    def parse_export_file(self, filename_or_file):
+    def parse_export_file(self, filename_or_file) -> pd.DataFrame:
         df = (pd.read_csv(filename_or_file,
-                        names = ["idx", "id", "type", "date", "time", "value1", "value2"],
+                        names = np.array(["idx", "id", "type", "date", "time", "value1", "value2"]),
                         parse_dates=[['date', 'time']]
                          )
               .drop(['id'], axis=1)
