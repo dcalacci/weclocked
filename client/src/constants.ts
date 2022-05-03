@@ -5,7 +5,9 @@ enum UPLOAD_CONSTANTS {
   EMAIL_TITLE = "Your Email",
   EMAIL_DESC = "A Google Sheet will be shared with this email address.",
   FORM_TITLE = "WeClock Upload",
-  FORM_DESC = "Upload WeClock Export"
+  FORM_DESC = "Upload WeClock Export",
+  FILE_SELECT = "Tap here to select a file.",
+  FILE_SELECT_DRAG = "Drag and drop exports here."
 }
 
 export {

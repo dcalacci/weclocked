@@ -1,9 +1,9 @@
-import type { Component } from 'solid-js'
 
-import { createSignal, createEffect, createResource } from "solid-js";
+import { createSignal, createResource } from "solid-js";
 
 import { on, Show, Switch, Match } from 'solid-js';
 
+import { UPLOAD_CONSTANTS } from "../constants";
 
 
 const FileUpload = (props: {
@@ -23,7 +23,7 @@ const FileUpload = (props: {
   return (
     <div class="grid grid-cols-1 space-y-2">
       <label class="text-lg font-bold text-slate-600 tracking-wide">{props.title}</label>
-      <span class="text-sm text-slate-500">Upload the .zip file from your WeClock export here. Your data will be securely shared with the WeClock team and processed into a Google Sheet visible only to you and WeClock.</span>
+      <span class="text-sm text-slate-500">{props.description}</span>
       <div
         draggable
         onDrop={(e) => { e.preventDefault(); e.preventDefault(); setDrag(false); props.onFileDropped(e); }}
@@ -33,6 +33,8 @@ const FileUpload = (props: {
 
         class="flex items-center justify-center w-full cursor-pointer">
         <label
+          title="upload-label"
+          data-testid="upload-label"
           class={`${dragging() ? 'bg-gray-200' : 'bg-white'} 
               transition 
               ease-in 
@@ -65,10 +67,11 @@ const FileUpload = (props: {
             <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-10">
             </div>
             <Show when={isAdvancedUpload()}>
-              <p class="text-slate-500 ">Drag and drop export here<br /> </p>
+              <p class="text-slate-500 ">{UPLOAD_CONSTANTS.FILE_SELECT_DRAG}<br /> </p>
               <p class="text-slate-500">or</p>
             </Show>
-            <p class="transition 
+            <p
+              class="transition 
               ease-in 
               shadow-md
               border-slate-400
@@ -83,9 +86,9 @@ const FileUpload = (props: {
               active:shadow-sm
               p-1
               px-3 
-              m-2 ">Tap here to select a file</p>
+              m-2 ">{UPLOAD_CONSTANTS.FILE_SELECT}</p>
           </div>
-          <input type="file" multiple class="hidden" onChange={props.onFileChange} />
+          <input title="upload-input" type="file" multiple class="hidden" onChange={props.onFileChange} />
         </label>
       </div >
     </div >
