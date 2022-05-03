@@ -115,11 +115,12 @@ const FileUpload = (props: { onFileDropped: (e: Event) => void, onFileChange: (e
               flex-col 
               items-center 
               justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-slate-400 group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
+            <div class="p-10">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-slate-400 group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
             <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-10">
-              {/* <img class="has-mask h-36 object-center" src="https://img.freepik.com/free-vector/image-upload-concept-landing-page_52683-27130.jpg?size=338&ext=jpg" alt="freepik image"> */}
             </div>
             <Show when={isAdvancedUpload()}>
               <p class="text-slate-500 ">Drag and drop export here<br /> </p>
@@ -142,7 +143,7 @@ const FileUpload = (props: { onFileDropped: (e: Event) => void, onFileChange: (e
               px-3 
               m-2 ">Tap here to select a file</p>
           </div>
-          <input type="file" class="hidden" onChange={props.onFileChange} />
+          <input type="file" multiple class="hidden" onChange={props.onFileChange} />
         </label>
       </div >
     </div >
