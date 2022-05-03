@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<FileUpload /> renders 1`] = `
+"<div class=\\"grid grid-cols-1 space-y-2\\"><label class=\\"text-lg font-bold text-slate-600 tracking-wide\\">Attach WeClock Export</label><span class=\\"text-sm text-slate-500\\">Upload the .zip file from your WeClock export here. Your data will be securely shared with the WeClock team and processed into a Google Sheet visible only to you and WeClock.</span><div title=\\"upload-box\\" draggable=\\"\\" class=\\"flex items-center justify-center w-full cursor-pointer\\"><label class=\\"bg-white 
+              transition 
+              ease-in 
+              flex 
+              flex-col 
+              rounded-sm
+              border-4 
+              border-dashed 
+              border-slate-300
+              w-full 
+              h-60 
+              p-10 
+              group 
+              text-center 
+              hover:bg-slate-100
+              hover:border-slate-700
+              cursor-pointer\\"><div class=\\"h-full 
+              w-full 
+              text-center 
+              flex 
+              flex-col 
+              items-center 
+              justify-center\\"><div class=\\"p-10\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"w-10 h-10 text-slate-400 group-hover:text-slate-700\\" fill=\\"none\\" viewBox=\\"0 0 24 24\\" stroke=\\"currentColor\\"><path stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" stroke-width=\\"2\\" d=\\"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12\\"></path></svg></div><div class=\\"flex flex-auto max-h-48 w-2/5 mx-auto -mt-10\\"></div><p class=\\"text-slate-500 \\">Drag and drop exports here.<br> </p><p class=\\"text-slate-500\\">or</p><p class=\\"transition 
+              ease-in 
+              shadow-md
+              border-slate-400
+              border-2
+              cursor-pointer 
+              font-semibold
+              rounded-sm
+              hover:shadow-sm
+              hover:bg-slate-200 
+              hover:text-slate-700
+              active:bg-slate-300 
+              active:shadow-sm
+              p-1
+              px-3 
+              m-2 \\">Tap here to select a file.</p></div><input title=\\"upload-input\\" type=\\"file\\" multiple=\\"\\" class=\\"hidden\\"></label></div></div>"
+`;
