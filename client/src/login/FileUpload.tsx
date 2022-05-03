@@ -10,7 +10,8 @@ const FileUpload = (props: {
   onFileDropped: (e: Event) => void,
   onFileChange: (e: Event) => void,
   title: string,
-  description: string
+  description: string,
+  children?: Element
 }) => {
 
   const [dragging, setDrag] = createSignal(false)
