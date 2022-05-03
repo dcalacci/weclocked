@@ -278,7 +278,7 @@ const GoogleLogin: Component = () => {
                   ">
                   Done!
                 </p>
-                <a href={data().wb_info.url}>
+                <a href={data().wb_info?.url}>
                   <p class="
                   transition ease-in
                   m-2

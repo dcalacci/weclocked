@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { UPLOAD_CONSTANTS } from "../constants";
 
 import FileUpload from "./FileUpload"
+import GoogleLogin from "./GoogleLogin"
 
 describe('<FileUpload />', () => {
   test("renders", () => {
@@ -35,7 +36,7 @@ describe('<FileUpload />', () => {
     })
   })
 
-  test("User  can upload file and click upload button", async () => {
+  test("User  can upload multiple files using the upload button", async () => {
     const user = userEvent.setup()
     const { container, unmount } = render(() => (
       <FileUpload
@@ -67,6 +68,32 @@ describe('<FileUpload />', () => {
     expect(input.files[1]).toBe(file2)
     expect(input.files.item(0)).toBe(file1)
     expect(input.files.item(1)).toBe(file2)
+  })
+
+  test("User can drag and drop files to upload, and cancel an upload", async () => {
+
+    const user = userEvent.setup()
+    const { container, unmount } = render(() => (
+      <GoogleLogin />
+    ))
+
+    const draggedFile = new File(['(⌐□_□)'], 'cool.png', { type: 'image/png' })
+
+    const input = screen.getByTitle("upload-input")
+    const dragText = screen.getByText(UPLOAD_CONSTANTS.FILE_SELECT_DRAG)
+
+    fireEvent.drop(screen.getByTitle('upload-box'), {
+      dataTransfer: {
+        files: [draggedFile],
+      },
+    })
+
+    expect(dragText).not.toBeInTheDocument()
+
+    // check if cancel removes our cancel button
+    const cancelButton = screen.getByText(/cancel/i)
+    await user.click(cancelButton)
+    expect(cancelButton).not.toBeInTheDocument()
 
   })
 })

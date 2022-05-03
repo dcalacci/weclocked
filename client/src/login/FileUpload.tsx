@@ -25,6 +25,7 @@ const FileUpload = (props: {
       <label class="text-lg font-bold text-slate-600 tracking-wide">{props.title}</label>
       <span class="text-sm text-slate-500">{props.description}</span>
       <div
+        title="upload-box"
         draggable
         onDrop={(e) => { e.preventDefault(); e.preventDefault(); setDrag(false); props.onFileDropped(e); }}
         onDragEnter={() => setDrag(true)}
@@ -33,8 +34,6 @@ const FileUpload = (props: {
 
         class="flex items-center justify-center w-full cursor-pointer">
         <label
-          title="upload-label"
-          data-testid="upload-label"
           class={`${dragging() ? 'bg-gray-200' : 'bg-white'} 
               transition 
               ease-in 
