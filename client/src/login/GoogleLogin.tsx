@@ -1,4 +1,4 @@
-import type { Component, Accessor } from "solid-js";
+import type { Component, Accessor, JSX } from "solid-js";
 
 import {
   createSignal,
@@ -146,10 +146,10 @@ const GoogleLogin: Component = (props) => {
   const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
   const [uploadPercent, setUploadPercent] = createSignal(0);
 
-  const [exports, { setExportFiles, setUserEmail}] = useExports();
+  const [exports, { setExportFiles, setUserEmail }] = useExports();
 
-	// update store email if it's valid
-	createEffect(on(email, (e) => validateEmail(e) ?  setUserEmail(e) : null))
+  // update store email if it's valid
+  createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
 
   // disappear errors after a few seconds
   createEffect(
@@ -246,7 +246,7 @@ const GoogleLogin: Component = (props) => {
         (event.target as HTMLInputElement).files || []
       );
       if (files && files.length > 0) {
-        setUploadedFiles(files);
+        setUploadedFiles([...files, ...uploadedFiles()]);
       } else {
         setError("No files selected.");
       }
@@ -260,7 +260,7 @@ const GoogleLogin: Component = (props) => {
     if (e.dataTransfer) {
       const files = Array.from<File>(e.dataTransfer.files);
       if (files && files.length > 0) {
-        setUploadedFiles(files);
+        setUploadedFiles([...files, ...uploadedFiles()]);
       } else {
         setError("No files detected, try again...");
       }
@@ -279,9 +279,18 @@ const GoogleLogin: Component = (props) => {
     </div>
   );
 
+  const FileList = (): JSX.Element => {
+    return (
+      <Show when={uploadedFiles().length > 0} fallback={<div></div>}>
+        <For each={Array.from<File>(uploadedFiles())}>
+          {(file) => <FilePreview file={file} />}
+        </For>
+      </Show>
+    );
+  };
+
   return (
     <div class="flex justify-center">
-      {/* <div class="absolute inset-0 z-100"></div> */}
       <div
         class="sm:max-w-lg 
 				w-full 
@@ -306,37 +315,22 @@ const GoogleLogin: Component = (props) => {
 
         <form class="mt-8 space-y-3" action="#" method="post">
           <EmailInput email={email} setEmail={setEmail} />
-          <Switch
-            fallback={
-              <FileUpload
-                title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
-                description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
-                onFileChange={onFileChange}
-                onFileDropped={onFileDropped}
-              />
-            }
+          <FileUpload
+            title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
+            description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
+            onFileChange={onFileChange}
+            onFileDropped={onFileDropped}
           >
-            <Match when={uploadedFiles().length > 0}>
-              <For each={Array.from<File>(uploadedFiles())}>
-                {(file) => <FilePreview file={file} />}
-              </For>
-            </Match>
-            <Match when={uploadedFiles().length == 0}>
-              <FileUpload
-                title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
-                description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
-                onFileChange={onFileChange}
-                onFileDropped={onFileDropped}
-              />
-            </Match>
-          </Switch>
+            {FileList()}
+          </FileUpload>
+
           <div>
             <Switch>
               <Match when={!data.loading && !data()}>
                 <UploadButton
                   onClick={onFileUpload}
                   disabled={uploadedFiles().length == 0}
-                  text={"Upload"}
+                  text={"Process Exports"}
                 />
               </Match>
               <Match when={data.loading}>
