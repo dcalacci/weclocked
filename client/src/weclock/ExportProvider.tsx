@@ -17,16 +17,16 @@ import { STORAGE_CONSTANTS } from "../constants";
 
 const storage = getStorage("indexeddb");
 
-export interface ExportState {
+interface ExportState {
   dataExport: WeClockExport;
 }
 
-export interface ExportActions {
+interface ExportActions {
   setExportFiles: (files: File[]) => void;
   setIdentifier: (identifier: string) => void;
 }
 
-export interface ExportStorage {
+interface ExportStorage {
   weClockExport: ExportState;
 }
 
@@ -66,10 +66,10 @@ function createLocalStore<T>(
   return [state, setState];
 }
 
-export const ExportsContext = createContext<[ExportState, ExportActions]>();
+const ExportsContext = createContext<[ExportState, ExportActions]>();
 
 // This provider allows you to wrap components in <ExportsProvider> and get access to the global store below
-export const ExportsProvider: Component = (props) => {
+const ExportsProvider: Component = (props) => {
   const [state, setState] = createLocalStore<ExportState>({
     dataExport: new WeClockExport(),
   },
@@ -103,4 +103,10 @@ export const ExportsProvider: Component = (props) => {
 export function useExports(): [ExportState, ExportActions] {
   //@ts-ignore
   return useContext<[ExportState, ExportActions]>(ExportsContext);
+}
+
+
+export {
+  ExportsContext,
+  ExportsProvider,
 }
