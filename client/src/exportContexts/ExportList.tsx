@@ -1,7 +1,11 @@
 import type { Component } from 'solid-js'
 
-import { createSignal } from "solid-js";
-import { useExports, WeClockExport } from '../weclock/export'
+import { For } from "solid-js"
+import { createSignal, useContext } from "solid-js";
+import { unwrap } from "solid-js/store";
+import { useExports, ExportsContext } from '../weclock/ExportProvider'
+
+import { WeClockExport } from "../weclock/export"
 
 
 const FileItem = (props: { children?: Element, fileId: string }) => {
@@ -18,9 +22,14 @@ const FileItem = (props: { children?: Element, fileId: string }) => {
 
 export default () => {
 
-  const [exportState, { setExportFiles }] = useExports();
+  console.log("export list...")
+  const [exportState, { setExportFiles }] = useExports()
+  console.log("export state:", unwrap(exportState))
   return (
     <div class="flex justify-center">
+      <For each={exportState.dataExport.files}>
+        {(f: File) => (<p>{f.name}</p>)}
+      </For>
       <p>Export List</p>
     </div>
   )

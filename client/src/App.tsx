@@ -6,7 +6,7 @@ import { Routes, Route } from 'solid-app-router'
 import GoogleLogin from './login/GoogleLogin'
 import ExportList from './exportContexts/Exportlist'
 
-import { ExportsProvider } from './weclock/export'
+import { ExportsProvider } from './weclock/ExportProvider'
 
 const App: Component = () => {
   return (

@@ -10,6 +10,11 @@ enum UPLOAD_CONSTANTS {
   FILE_SELECT_DRAG = "Drag and drop exports here."
 }
 
+enum STORAGE_CONSTANTS {
+  EXPORTS_STORAGE_KEY = "weclock_exports",
+}
+
 export {
-  UPLOAD_CONSTANTS
+  UPLOAD_CONSTANTS,
+  STORAGE_CONSTANTS
 }
