@@ -3,17 +3,14 @@ import type { Component, Context } from 'solid-js';
 import { createStore } from "solid-js/store";
 
 // represents a collection of file exports from a single WeClock user
-// let f = new FileList()
-
 export class WeClockExport {
-  identifier: string;
-  files: File[];
-  notes: string;
+  identifier: string; // identifier for this user/worker/etc
+  files: File[]; // array of export files uploaded by the user
+  notes: string; // text notes on this export
 
-  // TODO: I use FileList here because otherwise, File[] is a mutable type and we cannot use 
-  // it in a Solid-js provider
+  //TODO: Expand as we need additional context or information from exports
+
   constructor(files: File[] = []) {
-    // constructor(files: FileList = (new FileList())) {
     this.identifier = createUniqueId()
     this.files = files
     this.notes = ''
@@ -21,24 +18,26 @@ export class WeClockExport {
 }
 
 export interface ExportState {
-  dataExport: WeClockExport // exports with details
+  dataExport: WeClockExport
 }
 
 export const ExportsContext: Context<[ExportState, any]> = createContext([{ dataExport: new WeClockExport() }, {}])
 
+// This provider allows you to wrap components in <ExportsProvider> and get access to the global store below
 export const ExportsProvider: Component = (props) => {
   const [state, setState] = createStore<ExportState>(
     { dataExport: new WeClockExport() }
   )
 
   const store: [ExportState, Object] = [
+    //@ts-ignore this issue. it complains about File[] being mutable. The alternative is FileList,
+    // but that makes no sense. Should be fine.
     state,
     {
       // sets the export files using the files arg
       setExportFiles: (files: File[]) => {
         const dataExport: WeClockExport = new WeClockExport(files)
         setState("dataExport", dataExport)
-        console.log("Setting data export...", files)
       }
     }
   ]
