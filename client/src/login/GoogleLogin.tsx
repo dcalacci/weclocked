@@ -126,12 +126,6 @@ const GoogleLogin: Component = (props) => {
 		})
 	);
 
-	const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
-		<div class="flex flex-col border-2-rose-700 bg-rose-200 rounded-lg p-3 m-2">
-			<p>{errorMsg}</p>
-		</div>
-	);
-
 	const validateEmail = (email: string): boolean => {
 		var re = /\S+@\S+\.\S+/;
 		console.log("testing email");
@@ -152,15 +146,15 @@ const GoogleLogin: Component = (props) => {
 	};
 
 	interface UploadData {
-		wb_url: string;
+		wb_info: { url: string};
 		upload: string;
 	}
-	type UploadResponse = AxiosResponse<UploadData>;
+	// type UploadResponse = AxiosResponse<UploadData>;
 
 	async function uploadFile(source: {
 		files: File[];
 		email: string;
-	}): Promise<UploadResponse | undefined> {
+	}): Promise<UploadData | undefined> {
 		const files = source.files;
 		const email = source.email;
 		const formData = new FormData();
@@ -195,7 +189,7 @@ const GoogleLogin: Component = (props) => {
 	}
 
 	const [data, { mutate, refetch }] = createResource<
-		UploadResponse | undefined,
+		UploadData | undefined,
 		{ files: File[]; email: string }
 	>(emailAndFiles, uploadFile);
 
@@ -250,6 +244,13 @@ const GoogleLogin: Component = (props) => {
 		//@ts-ignore
 		mutate({ files: [], email: email() });
 	};
+
+	const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
+		<div class="flex flex-col border-2-rose-700 bg-rose-200 rounded-lg p-3 m-2">
+			<p>{errorMsg}</p>
+		</div>
+	);
+
 
 	return (
 		<div class="flex justify-center">
