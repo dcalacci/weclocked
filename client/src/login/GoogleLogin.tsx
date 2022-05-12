@@ -1,12 +1,14 @@
 import type { Component } from 'solid-js'
 
-import { createSignal, createEffect, createResource } from "solid-js";
+import { createSignal, createEffect, createResource, useContext } from "solid-js";
 
-import { on, Show, Switch, Match } from 'solid-js';
+import { on, Show, Switch, Match, For } from 'solid-js';
 
-import axios from 'axios'
+import axios, { AxiosResponse, AxiosError } from 'axios'
 
 import FileUpload from "./FileUpload"
+
+import { ExportsContext } from '../weclock/export'
 
 import { UPLOAD_CONSTANTS } from "../constants"
 
@@ -75,15 +77,23 @@ const ProgressSpinner = (props: { percent: number }) => {
 }
 
 
+const GoogleLogin: Component = (props) => {
+  const [email, setEmail] = createSignal<string>("")
+  const [error, setError] = createSignal<string>("")
+  const [emailAndFiles, setEmailAndFiles] = createSignal<{ files: File[], email: string }>();
 
-const GoogleLogin: Component = () => {
-  const [uploadedFile, setUploadedFile] = createSignal<File>()
-  const [email, setEmail] = createSignal("")
-  const [error, setError] = createSignal("")
-  const [emailAndFile, setEmailAndFile] = createSignal()
+  const [uploadedFiles, setUploadedFiles] = createSignal<File[]>()
+  const [uploadPercent, setUploadPercent] = createSignal(0)
+
+  const [exports, { setExportFiles }] = useContext(ExportsContext);
+
   // disappear errors after a few seconds
   createEffect(on(error, () => {
     setTimeout(() => setError(""), 10000), { defer: true }
+  }))
+
+  createEffect(on(uploadedFiles, () => {
+    setExportFiles(uploadedFiles())
   }))
 
   const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
@@ -106,19 +116,22 @@ const GoogleLogin: Component = () => {
     }
   }
 
-  const onUploadProgress = (event) => {
+  const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
     setUploadPercent(percentage)
   };
 
-  async function uploadFile(source, { value, refetching }) {
-    const file = source.file;
+  async function uploadFile(source: { files: FileList, email: string }): Promise<AxiosResponse | undefined> {
+    const files = source.files;
     const email = source.email;
     const formData = new FormData();
-    formData.append(
-      "file",
-      file,
-    )
+    Array.from(files).forEach((f: File) => {
+      formData.append(
+        "file",
+        f,
+      )
+
+    })
     formData.append(
       'email',
       email
@@ -134,24 +147,24 @@ const GoogleLogin: Component = () => {
         console.log("wb info:", response.data.wb_info)
         return response.data
       }
-    } catch (error) {
-      console.log("error:", error)
-      if (error.response) {
-        console.log("Had an issue!", error)
-      } else if (error.request) {
+    } catch (err) {
+      const errors = err as Error | AxiosError;
+      if (axios.isAxiosError(errors)) {
         console.log("Something wrong with the request")
+      } else {
+        console.log("Some other error, oops")
       }
     }
+    return undefined;
   }
 
-  const [data, { mutate, refetch }] = createResource(emailAndFile, uploadFile)
-  const [uploadPercent, setUploadPercent] = createSignal(0)
 
-
+  const [data, { mutate, refetch }] = createResource(emailAndFiles, uploadFile)
 
 
   const onFileUpload = () => {
-    const file = uploadedFile()
+    //    event.preventDefault()
+    const files = uploadedFiles()
     const formData = new FormData();
     const validEmail = validateEmail(email());
 
@@ -159,8 +172,8 @@ const GoogleLogin: Component = () => {
       setError("We think that email address is invalid. Please use a valid e-mail!")
       return;
     }
-    if (file) {
-      setEmailAndFile({ file, email: email() })
+    if (files) {
+      setEmailAndFiles({ files, email: email() })
     } else {
       setError("File not uploaded. Try again?")
     }
@@ -168,9 +181,9 @@ const GoogleLogin: Component = () => {
 
   const onFileChange = (event: Event) => {
     if (event.target != null) {
-      const files = (event.target as HTMLInputElement).files
+      const files = Array.from<File>((event.target as HTMLInputElement).files || []);
       if (files && files.length > 0) {
-        setUploadedFile(files[0])
+        setUploadedFiles(files)
       } else {
         setError("No files selected.")
       }
@@ -182,9 +195,9 @@ const GoogleLogin: Component = () => {
     e.preventDefault()
     e.stopPropagation();
     if (e.dataTransfer) {
-      const files = e.dataTransfer.files;
+      const files = Array.from<File>(e.dataTransfer.files);
       if (files && files.length > 0) {
-        setUploadedFile(files[0])
+        setUploadedFiles(files)
       } else {
         setError("No files detected, try again...")
       }
@@ -192,8 +205,8 @@ const GoogleLogin: Component = () => {
   }
 
   const cancelUpload = () => {
-    setUploadedFile(undefined)
-    mutate({})
+    setUploadedFiles(undefined)
+    mutate({ files: [], email: email() })
   }
 
 
@@ -245,10 +258,12 @@ const GoogleLogin: Component = () => {
             onFileChange={onFileChange}
             onFileDropped={onFileDropped}
           />}>
-            <Match when={uploadedFile()}>
-              <FilePreview file={uploadedFile()!} />
+            <Match when={uploadedFiles()}>
+              <For each={Array.from<File>(uploadedFiles())} fallback={<div>Loading...</div>}>
+                {(file) => <FilePreview file={file} />}
+              </For>
             </Match>
-            <Match when={!uploadedFile()}>
+            <Match when={!uploadedFiles()}>
               <FileUpload
                 title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
                 description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
@@ -259,7 +274,7 @@ const GoogleLogin: Component = () => {
           <div>
             <Switch>
               <Match when={!data.loading && !data()}>
-                <UploadButton onClick={onFileUpload} disabled={!uploadedFile()} text={"Upload"} />
+                <UploadButton onClick={onFileUpload} disabled={!uploadedFiles()} text={"Upload"} />
               </Match>
               <Match when={data.loading}>
                 <ProgressSpinner percent={uploadPercent()} />
@@ -278,7 +293,7 @@ const GoogleLogin: Component = () => {
                   ">
                   Done!
                 </p>
-                <a href={data().wb_info?.url}>
+                <a href={data()!.wb_info?.url}>
                   <p class="
                   transition ease-in
                   m-2
@@ -293,9 +308,25 @@ const GoogleLogin: Component = () => {
                     Go To Google Sheet
                   </p>
                 </a>
+                <a href={"/label"}>
+                  <p class="
+                  transition ease-in
+                  m-2
+                  p-2
+                  rounded-sm
+                  border-4
+                  text-slate-500
+                  font-semibold
+                  text-center
+                  border-slate-500
+                  ">
+                    Next
+                  </p>
+                </a>
+
               </Match>
             </Switch>
-            <Show when={uploadedFile() != null && !data()}>
+            <Show when={uploadedFiles() != null && !data()}>
               <p
                 onClick={cancelUpload}
                 class="transition 
