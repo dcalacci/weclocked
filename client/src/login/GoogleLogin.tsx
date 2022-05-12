@@ -1,4 +1,4 @@
-import type { Component } from "solid-js";
+import type { Component, Accessor } from "solid-js";
 
 import {
   createSignal,
@@ -11,6 +11,7 @@ import { on, Show, Switch, Match, For } from "solid-js";
 
 import axios, { AxiosResponse, AxiosError } from "axios";
 
+import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
 
 import { ExportsContext, useExports } from "../weclock/ExportProvider";
@@ -96,9 +97,47 @@ const ProgressSpinner = (props: { percent: number }) => {
   );
 };
 
+const EmailInput = (props: {
+  email: Accessor<string>;
+  setEmail: (email: string) => void;
+}) => {
+  const onEmailChange = (event: Event) => {
+    if (event.target != null) {
+      const email = (event.target as HTMLInputElement).value;
+      console.log("setting email to:", email);
+      props.setEmail(email);
+    }
+  };
+  return (
+    <div class="grid grid-cols-1 space-y-2">
+      <label class="text-lg font-bold text-slate-600 tracking-wide">
+        {UPLOAD_CONSTANTS.EMAIL_TITLE}
+      </label>
+      <span class="text-sm text-slate-500">{UPLOAD_CONSTANTS.EMAIL_DESC}</span>
+      <input
+        onInput={onEmailChange}
+        value={props.email()}
+        type="text"
+        class={`
+								${validateEmail(props.email()) ? "border-emerald-400" : "border-rose-300"}
+								${props.email() == "" ? "border-slate-400" : ""}
+								transition 
+								ease-in
+								duration-400
+								text-base
+								p-2
+								border-4
+								rounded-sm
+								focus:outline-none`}
+        placeholder="mail@gmail.com"
+      />
+    </div>
+  );
+};
+
 const GoogleLogin: Component = (props) => {
-  const [email, setEmail] = createSignal<string>("");
   const [error, setError] = createSignal<string>("");
+  const [email, setEmail] = createSignal<string>("");
   const [emailAndFiles, setEmailAndFiles] = createSignal<{
     files: File[];
     email: string;
@@ -126,20 +165,6 @@ const GoogleLogin: Component = (props) => {
     })
   );
 
-  const validateEmail = (email: string): boolean => {
-    var re = /\S+@\S+\.\S+/;
-    console.log("testing email");
-    return re.test(email);
-  };
-
-  const onEmailChange = (event: Event) => {
-    if (event.target != null) {
-      const email = (event.target as HTMLInputElement).value;
-      console.log("setting email to:", email);
-      setEmail(email);
-    }
-  };
-
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
     setUploadPercent(percentage);
@@ -155,7 +180,7 @@ const GoogleLogin: Component = (props) => {
     files: File[];
     email: string;
   }): Promise<UploadData | undefined> {
-		if (source.files.length == 0) return undefined
+    if (source.files.length == 0) return undefined;
     const files = source.files;
     const email = source.email;
     const formData = new FormData();
@@ -278,31 +303,7 @@ const GoogleLogin: Component = (props) => {
         </Show>
 
         <form class="mt-8 space-y-3" action="#" method="post">
-          <div class="grid grid-cols-1 space-y-2">
-            <label class="text-lg font-bold text-slate-600 tracking-wide">
-              {UPLOAD_CONSTANTS.EMAIL_TITLE}
-            </label>
-            <span class="text-sm text-slate-500">
-              {UPLOAD_CONSTANTS.EMAIL_DESC}
-            </span>
-            <input
-              onInput={onEmailChange}
-              value={email()}
-              type="text"
-              class={`
-								${validateEmail(email()) ? "border-emerald-400" : "border-rose-300"}
-								${email() == "" ? "border-slate-400" : ""}
-								transition 
-								ease-in
-								duration-400
-								text-base
-								p-2
-								border-4
-								rounded-sm
-								focus:outline-none`}
-              placeholder="mail@gmail.com"
-            />
-          </div>
+          <EmailInput email={email} setEmail={setEmail} />
           <Switch
             fallback={
               <FileUpload

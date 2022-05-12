@@ -12,7 +12,7 @@ const FileItem = (props: { children?: Element; fileId: string }) => {
   const [notes, setNotes] = createSignal<string>("");
 
   return (
-    <div class="flex-row justify-center border-black">
+    <div class="flex-row justify-center border-4 border-black p-5 m-3">
       <div class="flex">
         <p> Export ID: {props.fileId}</p>
         <p> Identifier: {identifier}</p>
@@ -21,12 +21,11 @@ const FileItem = (props: { children?: Element; fileId: string }) => {
   );
 };
 
-export default () => {
-  console.log("export list...");
+const FileList = () => {
   const [exportState, { setExportFiles }] = useExports();
-  console.log("export state:", unwrap(exportState));
   return (
-    <div class="flex-col justify-center w-full">
+    <div class="flex-col content-center justify-center w-full p-5">
+      <p>Uploaded {exportState.dataExport.files.length} files.</p>
       <For each={exportState.dataExport.files}>
         {(f: File) => <FileItem fileId={f.name}></FileItem>}
       </For>
@@ -34,4 +33,4 @@ export default () => {
   );
 };
 
-export { FileItem };
+export { FileItem, FileList};

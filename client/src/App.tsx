@@ -4,7 +4,7 @@ import { Routes, Route } from 'solid-app-router'
 // import type { StoreNode, Store, SetStoreFunction } from "solid-js/store";
 
 import GoogleLogin from './login/GoogleLogin'
-import ExportList from './exportContexts/Exportlist'
+import { FileList } from './addExportInfo/ExportList'
 
 import { ExportsProvider } from './weclock/ExportProvider'
 
@@ -25,7 +25,7 @@ const App: Component = () => {
         </nav>
         <Routes>
           <Route path='/upload' element={<GoogleLogin />} />
-          <Route path='/label' element={<ExportList />} />
+          <Route path='/label' element={<FileList/>} />
         </Routes>
       </div>
     </ExportsProvider>
