@@ -19,11 +19,13 @@ const storage = getStorage("indexeddb");
 
 interface ExportState {
   dataExport: WeClockExport;
+  email: string;
 }
 
 interface ExportActions {
   setExportFiles: (files: File[]) => void;
   setIdentifier: (identifier: string) => void;
+  setUserEmail: (email: string) => void;
 }
 
 interface ExportStorage {
@@ -72,6 +74,7 @@ const ExportsContext = createContext<[ExportState, ExportActions]>();
 const ExportsProvider: Component = (props) => {
   const [state, setState] = createLocalStore<ExportState>({
     dataExport: new WeClockExport(),
+    email: "",
   },
   STORAGE_CONSTANTS.EXPORTS_STORAGE_KEY);
 
@@ -91,6 +94,9 @@ const ExportsProvider: Component = (props) => {
         produce((s: ExportState) => {
           s.dataExport.identifier = identifier;
         }),
+      setUserEmail: (email: string) => {
+        setState("email", email);
+      }
     },
   ];
 

@@ -146,7 +146,10 @@ const GoogleLogin: Component = (props) => {
   const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
   const [uploadPercent, setUploadPercent] = createSignal(0);
 
-  const [exports, { setExportFiles }] = useExports();
+  const [exports, { setExportFiles, setUserEmail}] = useExports();
+
+	// update store email if it's valid
+	createEffect(on(email, (e) => validateEmail(e) ?  setUserEmail(e) : null))
 
   // disappear errors after a few seconds
   createEffect(
@@ -174,7 +177,6 @@ const GoogleLogin: Component = (props) => {
     wb_info: { url: string };
     upload: string;
   }
-  // type UploadResponse = AxiosResponse<UploadData>;
 
   async function uploadFile(source: {
     files: File[];
