@@ -270,7 +270,7 @@ const GoogleLogin: Component = (props) => {
   const cancelUpload = () => {
     setUploadedFiles([]);
     //@ts-ignore
-    mutate({ files: [], email: email() });
+    mutate(undefined);
   };
 
   const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
@@ -394,7 +394,7 @@ const GoogleLogin: Component = (props) => {
                 </a>
               </Match>
             </Switch>
-            <Show when={uploadedFiles().length > 0 && !data()}>
+            <Show when={uploadedFiles().length > 0}>
               <p
                 onClick={cancelUpload}
                 class="transition 
