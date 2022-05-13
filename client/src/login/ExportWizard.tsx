@@ -1,4 +1,11 @@
-import { Component, JSX, createMemo } from "solid-js";
+import {
+  Component,
+  JSX,
+  createMemo,
+  Setter,
+  createUniqueId,
+  mergeProps,
+} from "solid-js";
 
 import { createSignal, createEffect, createResource } from "solid-js";
 
@@ -8,19 +15,24 @@ import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
 import { ValidatedTextField, ProgressSpinner, Button } from "../components";
 
-import { useExports } from "../weclock/ExportProvider";
+import {
+  ExportActions,
+  ExportState,
+  useExports,
+} from "../weclock/ExportProvider";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
 import { HiSolidFolder } from "solid-icons/hi";
-import { unwrap } from "solid-js/store";
+import { createStore, Store, unwrap } from "solid-js/store";
 
 const FilePreview = (props: {
   file: File;
   onPressDelete: (file: File) => void;
 }) => {
+  const f = unwrap(props.file) as File;
   const abbreviatedFileName =
-    props.file.name.slice(0, 20) + (props.file.name.length > 20 ? "..." : "");
+    f.name.slice(0, 20) + (f.name.length > 20 ? "..." : "");
   return (
     <div class="flex flex-row align-content-start justify-between py-2 w-full">
       <div class="flex flex-row justify-start items-center">
@@ -29,7 +41,10 @@ const FilePreview = (props: {
       </div>
       <div>
         <button
-          onClick={() => props.onPressDelete(props.file)}
+          onClick={(e) => {
+            e.preventDefault();
+            props.onPressDelete(f);
+          }}
           class=" py-1 border-red-600 hover:bg-red-400 border-2 font-bold w-20"
         >
           Delete
@@ -42,84 +57,72 @@ const FilePreview = (props: {
 const ExportWizard: Component = (props) => {
   const [error, setError] = createSignal("");
   const [email, setEmail] = createSignal("");
-
   const [droppedFiles, setDroppedFiles] = createSignal<File[]>([]);
 
   const [
     exportState,
     {
       getCurrentExport,
-      getExport,
-      setCurrentExportId,
+      setCurrentExportIndex,
       setCurrentFiles,
       setUserEmail,
       setExportFiles,
       addFilesToExport,
       addExport,
+      updateExportId,
     },
   ] = useExports();
+
+  const updateCurrentExportId = (newId: string) => {
+    console.log(
+      "changing id for index...",
+      exportState.currentExportIndex,
+      newId
+    );
+    updateExportId(exportState.currentExportIndex, newId);
+  };
+
+  const currentId = createMemo(() => {
+    return exportState.exports[exportState.currentExportIndex].identifier;
+  });
 
   const currentFiles = createMemo<File[]>(() => {
     let exp = getCurrentExport();
     return exp ? exp.files : [];
   });
 
-  const allIdentifiers = createMemo<string[]>(() => {
-    return exportState.exports.map((exp) => exp.identifier);
-  });
-
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
 
-  const addNewParticipant = (files?: File[]) => {
-    const exportObj = new WeClockExport(files || []);
-    addExport(exportObj);
-    setCurrentExportId(exportObj.identifier);
-    console.log(
-      "[addNewParticipant]: added new export/participant:",
-      exportObj
-    );
-    console.log(
-      "[addNewParticipant]: set new export id:",
-      exportObj.identifier
-    );
-  };
-
   const onNextParticipant = () => {
-    const exports = unwrap(exportState).exports as WeClockExport[];
-    const currentExport = unwrap(getCurrentExport()) as WeClockExport;
+    const exports = exportState.exports as WeClockExport[];
+    const currentExport = getCurrentExport();
     if (currentExport.files.length === 0) return;
-    let idx = exports.findIndex(
-      (e) => e.identifier === currentExport.identifier
-    );
-    let nextIdx = idx + 1;
+
+    const currentIdx = exportState.currentExportIndex;
+    let nextIdx = currentIdx + 1;
     console.log(
       "[onNextParticipant]: current export idx:",
-      currentExport,
-      idx,
+      currentIdx,
       "|",
       nextIdx,
       exports
     );
     if (nextIdx >= exports.length) {
-      addNewParticipant();
+      addExport();
+      setCurrentExportIndex(nextIdx);
     } else {
-      console.log("Setting current export ID", exports[nextIdx].identifier);
-      setCurrentExportId(exports[nextIdx].identifier);
+      setCurrentExportIndex(nextIdx);
     }
   };
 
   const onPreviousParticipant = () => {
-    const exports = unwrap(exportState).exports as WeClockExport[];
-    const currentExport = unwrap(getCurrentExport()) as WeClockExport;
-    let idx = exports.findIndex(
-      (e) => e.identifier === currentExport.identifier
-    );
-    let nextIdx = idx - 1;
+    const currentIdx = unwrap(exportState).currentExportIndex;
+    let nextIdx = currentIdx - 1;
     if (nextIdx < 0) {
       return;
     } else {
-      setCurrentExportId(exports[nextIdx].identifier);
+      setCurrentExportIndex(nextIdx);
     }
   };
 
@@ -128,7 +131,13 @@ const ExportWizard: Component = (props) => {
     on(droppedFiles, (prev) => {
       let files = droppedFiles();
       if (files.length > 0) {
-        addFilesToExport(unwrap(exportState).currentExportId, files);
+        console.log(
+          "[onDroppedFiles] adding ",
+          files,
+          "to ",
+          exportState.currentExportIndex
+        );
+        addFilesToExport(exportState.currentExportIndex, files);
       }
     })
   );
@@ -163,8 +172,6 @@ const ExportWizard: Component = (props) => {
   const cancelUpload = () => {
     setDroppedFiles([]);
     setCurrentFiles([]);
-    //@ts-ignore
-    mutate(undefined);
   };
 
   const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
@@ -232,9 +239,14 @@ const ExportWizard: Component = (props) => {
             </span>
             <br />
           </div>
-          <h1 class="text-xl font-bold">{getCurrentExport()?.identifier}</h1>
+          <ValidatedTextField
+            text={currentId}
+            setText={updateCurrentExportId}
+            title={"Participant ID"}
+          />
+          <h1 class="text-xl font-bold">{getCurrentExport().identifier}</h1>
           <FileUpload onFileChange={onFileChange} onFileDropped={onFileDropped}>
-            <FileList files={currentFiles()} />
+            <FileList files={getCurrentExport().files} />
           </FileUpload>
           <div class="flex flex-row flex-wrap justify-between">
             <Button

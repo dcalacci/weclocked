@@ -15,10 +15,18 @@ export class WeClockExport {
   notes: string; // text notes on this export
 
   //TODO: Expand as we need additional context or information from exports
-  constructor(files: File[] = [], identifier: string = createUniqueId()) {
+  constructor(
+    files: File[] = [],
+    identifier: string = createUniqueId(),
+    notes: string = ""
+  ) {
     this.identifier = identifier;
     this.files = files;
     this.notes = "";
+  }
+
+  clone(obj: WeClockExport): WeClockExport {
+    return new WeClockExport(this.files, this.identifier, this.notes);
   }
 
   get fileNames(): string[] {

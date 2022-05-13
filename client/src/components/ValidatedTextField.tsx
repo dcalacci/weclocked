@@ -3,11 +3,13 @@ import { UPLOAD_CONSTANTS } from "../constants";
 
 export default (props: {
   text: Accessor<string>;
-  setText: Setter<string>;
+  setText: (text: string) => void;
   validator?: (text: string) => boolean;
   title?: string;
   description?: string;
   placeholder?: string;
+  class?: string;
+  inputClass?: string;
 }) => {
   const onTextChange = (event: Event) => {
     if (event.target != null) {
@@ -16,7 +18,7 @@ export default (props: {
     }
   };
   return (
-    <div class="grid grid-cols-1 space-y-2">
+    <div class={`grid grid-cols-1 space-y-2 ${props.class}`}>
       <label class="text-lg font-bold text-slate-600 tracking-wide">
         {props.title}
       </label>
@@ -39,7 +41,9 @@ export default (props: {
 								p-2
 								border-4
 								rounded-sm
-								focus:outline-none`}
+								focus:outline-none
+                ${props.inputClass}
+                `}
         placeholder={props.placeholder}
       />
     </div>
