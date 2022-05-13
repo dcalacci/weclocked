@@ -64,6 +64,10 @@ const ExportWizard: Component = (props) => {
     return exp ? exp.files : [];
   });
 
+  const allIdentifiers = createMemo<string[]>(() => {
+    return exportState.exports.map((exp) => exp.identifier);
+  });
+
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
 
@@ -84,13 +88,23 @@ const ExportWizard: Component = (props) => {
   const onNextParticipant = () => {
     const exports = unwrap(exportState).exports as WeClockExport[];
     const currentExport = unwrap(getCurrentExport()) as WeClockExport;
+    if (currentExport.files.length === 0) return;
     let idx = exports.findIndex(
       (e) => e.identifier === currentExport.identifier
     );
     let nextIdx = idx + 1;
+    console.log(
+      "[onNextParticipant]: current export idx:",
+      currentExport,
+      idx,
+      "|",
+      nextIdx,
+      exports
+    );
     if (nextIdx >= exports.length) {
       addNewParticipant();
     } else {
+      console.log("Setting current export ID", exports[nextIdx].identifier);
       setCurrentExportId(exports[nextIdx].identifier);
     }
   };
@@ -204,16 +218,22 @@ const ExportWizard: Component = (props) => {
             text={email}
             setText={setEmail}
             validator={validateEmail}
+            title={UPLOAD_CONSTANTS.EMAIL_TITLE}
+            description={UPLOAD_CONSTANTS.EMAIL_DESC}
             placeholder={"solidarity@weclock.it"}
           />
-          <FileUpload
-            class="border-top border-black"
-            title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
-            description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
-            onFileChange={onFileChange}
-            onFileDropped={onFileDropped}
-            uploadName={`Participant ${getCurrentExport()?.identifier || ""}`}
-          >
+
+          <div class="flex flex-col space-y-2">
+            <label class="text-xl font-bold text-slate-600 tracking-wide">
+              {UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
+            </label>
+            <span class="text-sm text-slate-500">
+              {UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
+            </span>
+            <br />
+          </div>
+          <h1 class="text-xl font-bold">{getCurrentExport()?.identifier}</h1>
+          <FileUpload onFileChange={onFileChange} onFileDropped={onFileDropped}>
             <FileList files={currentFiles()} />
           </FileUpload>
           <div class="flex flex-row flex-wrap justify-between">

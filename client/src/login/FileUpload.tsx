@@ -6,8 +6,8 @@ import { UPLOAD_CONSTANTS } from "../constants";
 const FileUpload = (props: {
   onFileDropped: (e: Event) => void;
   onFileChange: (e: Event) => void;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   uploadName?: string;
   children?: JSX.Element;
   class?: string;
@@ -47,12 +47,6 @@ const FileUpload = (props: {
 
   return (
     <div class={`grid grid-cols-1 space-y-2 ${props.class}`}>
-      <label class="text-lg font-bold text-slate-600 tracking-wide">
-        {props.title}
-      </label>
-      <span class="text-sm text-slate-500">{props.description}</span>
-      <br/>
-      <h1 class="text-xl font-bold text-slate-600">{props.uploadName}</h1>
       <div
         title="upload-box"
         draggable
