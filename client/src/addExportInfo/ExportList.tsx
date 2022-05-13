@@ -13,7 +13,7 @@ const FileItem = (props: { children?: Element; fileId: string }) => {
 
   return (
     <div class="flex-row justify-center border-4 border-black p-5 m-3">
-      <div class="flex">
+      <div class="flex-col">
         <p> Export ID: {props.fileId}</p>
         <p> Identifier: {identifier}</p>
       </div>

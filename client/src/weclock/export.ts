@@ -12,19 +12,20 @@ export interface JSONWeClockExport {
 export class WeClockExport {
   identifier: string; // identifier for this user/worker/etc
   files: File[]; // array of export files uploaded by the user
-  fileNames: string[];
   notes: string; // text notes on this export
 
   //TODO: Expand as we need additional context or information from exports
-  constructor(files: File[] = []) {
-    this.identifier = createUniqueId();
+  constructor(files: File[] = [], identifier: string = createUniqueId()) {
+    this.identifier = identifier;
     this.files = files;
-    this.fileNames = files.map((f) => f.name);
     this.notes = "";
   }
 
+  get fileNames(): string[] {
+    return this.files.map((f) => f.name);
+  }
 
-  // returns a new weclock export from a well-formatted json export
+  // returns a new weclock export from a well-formatted json
   static fromJSON(json: JSONWeClockExport): WeClockExport {
     let files = json.blobs.map((b, i) => new File([b], json.fileNames[i]));
     let wc = new WeClockExport(files);

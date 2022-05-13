@@ -1,9 +1,10 @@
-import { createSignal, createResource, JSX } from "solid-js";
+import { createSignal, createResource, JSX, Accessor, Setter } from "solid-js";
 import type { Component } from "solid-js";
 
 import { on, Show, Switch, Match } from "solid-js";
 
 import { UPLOAD_CONSTANTS } from "../constants";
+
 
 const FileUpload = (props: {
   onFileDropped: (e: Event) => void;
@@ -11,6 +12,7 @@ const FileUpload = (props: {
   title: string;
   description: string;
   children?: JSX.Element;
+  class?: string;
 }) => {
   const [dragging, setDrag] = createSignal(false);
   const isAdvancedUpload = () => {
@@ -39,14 +41,14 @@ const FileUpload = (props: {
     active:shadow-sm
     p-1
     px-3 
-    m-2 "
+    m-2"
     >
       {UPLOAD_CONSTANTS.FILE_SELECT}
     </p>
   );
 
   return (
-    <div class="grid grid-cols-1 space-y-2">
+    <div class={`grid grid-cols-1 space-y-2 ${props.class}`}>
       <label class="text-lg font-bold text-slate-600 tracking-wide">
         {props.title}
       </label>

@@ -1,4 +1,4 @@
-import type { Component, Accessor, JSX } from "solid-js";
+import { Component, Accessor, JSX, createMemo } from "solid-js";
 
 import {
   createSignal,
@@ -13,10 +13,13 @@ import axios, { AxiosResponse, AxiosError } from "axios";
 
 import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
+import ValidatedTextField from "../components/ValidatedTextField";
 
 import { ExportsContext, useExports } from "../weclock/ExportProvider";
 
 import { UPLOAD_CONSTANTS } from "../constants";
+import { WeClockExport } from "../weclock/export";
+import { unwrap } from "solid-js/store";
 
 const FilePreview = (props: { file: File }) => {
   return (
@@ -31,10 +34,15 @@ const UploadButton = (props: {
   onClick: () => void;
   disabled: boolean;
 }) => {
+  const onPressButton = (e: Event) => {
+    e = e || window.event;
+    e.preventDefault();
+    props.onClick();
+  };
   return (
     <button
       type="submit"
-      onClick={props.onClick}
+      onClick={onPressButton}
       disabled={props.disabled}
       class="
 							my-5 
@@ -97,56 +105,52 @@ const ProgressSpinner = (props: { percent: number }) => {
   );
 };
 
-const EmailInput = (props: {
-  email: Accessor<string>;
-  setEmail: (email: string) => void;
-}) => {
-  const onEmailChange = (event: Event) => {
-    if (event.target != null) {
-      const email = (event.target as HTMLInputElement).value;
-      console.log("setting email to:", email);
-      props.setEmail(email);
-    }
-  };
-  return (
-    <div class="grid grid-cols-1 space-y-2">
-      <label class="text-lg font-bold text-slate-600 tracking-wide">
-        {UPLOAD_CONSTANTS.EMAIL_TITLE}
-      </label>
-      <span class="text-sm text-slate-500">{UPLOAD_CONSTANTS.EMAIL_DESC}</span>
-      <input
-        onInput={onEmailChange}
-        value={props.email()}
-        type="text"
-        class={`
-								${validateEmail(props.email()) ? "border-emerald-400" : "border-rose-300"}
-								${props.email() == "" ? "border-slate-400" : ""}
-								transition 
-								ease-in
-								duration-400
-								text-base
-								p-2
-								border-4
-								rounded-sm
-								focus:outline-none`}
-        placeholder="mail@gmail.com"
-      />
-    </div>
-  );
-};
+const ExportWizard: Component = (props) => {
+  const [error, setError] = createSignal("");
+  const [email, setEmail] = createSignal("");
 
-const GoogleLogin: Component = (props) => {
-  const [error, setError] = createSignal<string>("");
-  const [email, setEmail] = createSignal<string>("");
+  const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
+  const [uploadPercent, setUploadPercent] = createSignal(0);
+
+  const [
+    exportState,
+    {
+      setCurrentExportId,
+      getExport,
+      setUserEmail,
+      addFilesToExport,
+      addExport,
+    },
+  ] = useExports();
+
+  const currentExport = createMemo<WeClockExport | undefined>(() => {
+    let exps = exportState.exports as WeClockExport[];
+    console.log(
+      "[currentExport] calculating current export:",
+      exportState.currentExportId
+    );
+    let exp = exps.find(
+      (exportObj) => exportObj.identifier === exportState.currentExportId
+    );
+    return exp;
+  });
+
+  const currentFiles = createMemo<File[]>(() =>
+    currentExport() ? currentExport()!.files : []
+  );
+
   const [emailAndFiles, setEmailAndFiles] = createSignal<{
     files: File[];
     email: string;
   }>({ files: [], email: "" });
 
-  const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
-  const [uploadPercent, setUploadPercent] = createSignal(0);
-
-  const [exports, { setExportFiles, setUserEmail }] = useExports();
+  const addNewParticipant = (files?: File[]) => {
+    const exportObj = new WeClockExport(files || []);
+    console.log("adding new export/participant:", exportObj);
+    addExport(exportObj);
+    console.log("setting new export id:", exportObj.identifier);
+    setCurrentExportId(exportObj.identifier);
+  };
 
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
@@ -161,9 +165,19 @@ const GoogleLogin: Component = (props) => {
   createEffect(
     on(uploadedFiles, () => {
       let files = uploadedFiles();
-      // do not overwrite files if we have an empty array.
       if (files.length > 0) {
-        setExportFiles(files);
+        // let currentExports = unwrap(exportState).exports;
+        let exps = exportState.exports as WeClockExport[];
+        if (exps.length === 0) {
+          console.log("No exports. Adding a new one:");
+          addNewParticipant(uploadedFiles());
+        } else if (exportState.currentExportId !== null) {
+          console.log(
+            "Adding uploaded file to existing export:",
+            exportState.currentExportId
+          );
+          addFilesToExport(exportState.currentExportId, files);
+        }
       }
     })
   );
@@ -234,10 +248,12 @@ const GoogleLogin: Component = (props) => {
       return;
     }
     if (files) {
+      // setExportFiles(files);
       setEmailAndFiles({ files, email: email() });
     } else {
       setError("File not uploaded. Try again?");
     }
+    return false;
   };
 
   const onFileChange = (event: Event) => {
@@ -279,11 +295,13 @@ const GoogleLogin: Component = (props) => {
     </div>
   );
 
-  const FileList = (): JSX.Element => {
+  const FileList: Component<{ files: File[] }> = (props): JSX.Element => {
+    // let exp = unwrap(props.exportObj);
+    console.log("[FileList] rendering file list:", props.files);
     return (
-      <Show when={uploadedFiles().length > 0} fallback={<div></div>}>
-        <For each={Array.from<File>(uploadedFiles())}>
-          {(file) => <FilePreview file={file} />}
+      <Show when={props.files.length > 0} fallback={<div></div>}>
+        <For each={props.files}>
+          {(file, index) => <FilePreview file={file} />}
         </For>
       </Show>
     );
@@ -314,19 +332,30 @@ const GoogleLogin: Component = (props) => {
         </Show>
 
         <form class="mt-8 space-y-3" action="#" method="post">
-          <EmailInput email={email} setEmail={setEmail} />
+          <ValidatedTextField
+            text={email}
+            setText={setEmail}
+            validator={validateEmail}
+            placeholder={"solidarity@weclock.it"}
+          />
           <FileUpload
+            class="border-top border-black"
             title={UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
             description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
             onFileChange={onFileChange}
             onFileDropped={onFileDropped}
           >
-            {FileList()}
+            <FileList files={currentFiles()} />
           </FileUpload>
 
           <div>
             <Switch>
               <Match when={!data.loading && !data()}>
+                <UploadButton
+                  onClick={addNewParticipant}
+                  disabled={false}
+                  text={"Add New Participant"}
+                />
                 <UploadButton
                   onClick={onFileUpload}
                   disabled={uploadedFiles().length == 0}
@@ -418,4 +447,4 @@ const GoogleLogin: Component = (props) => {
   );
 };
 
-export default GoogleLogin;
+export default ExportWizard;
