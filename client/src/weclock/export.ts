@@ -22,7 +22,7 @@ export class WeClockExport {
   ) {
     this.identifier = identifier;
     this.files = files;
-    this.notes = "";
+    this.notes = notes;
   }
 
   clone(obj: WeClockExport): WeClockExport {

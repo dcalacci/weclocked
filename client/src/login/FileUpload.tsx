@@ -119,6 +119,7 @@ const FileUpload = (props: {
               </p>
             </Show>
           </div>
+
           <input
             title="upload-input"
             type="file"
@@ -126,10 +127,10 @@ const FileUpload = (props: {
             class="hidden"
             onChange={props.onFileChange}
           />
-          <div class="flex flex-col items-center justify-center w-full">
-            {props.children}
-          </div>
         </label>
+        <div class="flex flex-col items-center justify-center w-full">
+          {props.children}
+        </div>
       </div>
     </div>
   );

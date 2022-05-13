@@ -18,7 +18,7 @@ export default (props: {
     }
   };
   return (
-    <div class={`grid grid-cols-1 space-y-2 ${props.class}`}>
+    <div class={`grid grid-cols-1 space-y-1 ${props.class}`}>
       <label class="text-lg font-bold text-slate-600 tracking-wide">
         {props.title}
       </label>

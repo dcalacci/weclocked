@@ -22,6 +22,7 @@ export type ExportActions = {
   setCurrentExportIndex: (idx: number) => void;
   setCurrentFiles: (files: File[]) => void;
   updateExportId: (idx: number, newId: string) => void;
+  clearExports: () => void;
 };
 
 const ExportsContext = createContext<[ExportState, ExportActions]>();
@@ -36,7 +37,7 @@ const ExportsContext = createContext<[ExportState, ExportActions]>();
 const ExportsProvider: Component = (props) => {
   const [state, setState] = createLocalStore<ExportState>(
     {
-      exports: [new WeClockExport()] as WeClockExport[],
+      exports: [new WeClockExport([], "Participant 1", "")] as WeClockExport[],
       currentExportIndex: 0,
       email: "",
     },
@@ -48,6 +49,11 @@ const ExportsProvider: Component = (props) => {
     // but that makes no sense. Should be fine.
     state,
     {
+      clearExports: () => {
+        setState("exports", [
+          new WeClockExport([], "Participant 1", ""),
+        ] as WeClockExport[]);
+      },
       getCurrentExport: () => {
         let exps = state.exports as WeClockExport[];
         return exps[state.currentExportIndex];
@@ -65,7 +71,11 @@ const ExportsProvider: Component = (props) => {
         );
       },
       addExport: () => {
-        setState("exports", state.exports.length, new WeClockExport());
+        setState(
+          "exports",
+          state.exports.length,
+          new WeClockExport([], `Participant ${state.exports.length + 1}`, "")
+        );
       },
       setExportFiles: (idx: number, files: File[]) => {
         setState(
