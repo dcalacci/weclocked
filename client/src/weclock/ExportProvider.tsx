@@ -8,7 +8,7 @@ import { STORAGE_CONSTANTS } from "../constants";
 
 interface ExportState {
   exports: WeClockExport[];
-  currentExportId: string | null;
+  currentExportId: string;
   email: string;
 }
 
@@ -27,10 +27,11 @@ const ExportsContext = createContext<[ExportState, ExportActions]>();
 
 // This provider allows you to wrap components in <ExportsProvider> and get access to the global store below
 const ExportsProvider: Component = (props) => {
+  let initWeClockExport = new WeClockExport();
   const [state, setState] = createLocalStore<ExportState>(
     {
-      exports: [] as WeClockExport[],
-      currentExportId: "",
+      exports: [initWeClockExport] as WeClockExport[],
+      currentExportId: initWeClockExport.identifier,
       email: "",
     },
     STORAGE_CONSTANTS.EXPORTS_STORAGE_KEY

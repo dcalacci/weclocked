@@ -2,21 +2,16 @@ export default (props: {
   text: string;
   onClick: () => void;
   disabled: boolean;
+  class?: string;
 }) => {
   const onPressButton = (e: Event) => {
     e = e || window.event;
     e.preventDefault();
     props.onClick();
   };
-  return (
-    <button
-      type="submit"
-      onClick={onPressButton}
-      disabled={props.disabled}
-      class="
-                              my-5 
+  const classString = `my-5 
                               p-4
-                              w-full flex justify-center 
+                              flex justify-center 
                               bg-white
                               border-4
                               border-slate-500
@@ -31,7 +26,14 @@ export default (props: {
                               shadow-lg 
                               cursor-pointer 
                               transition 
-                              ease-in"
+                              ease-in ${props.class}`;
+
+  return (
+    <button
+      type="submit"
+      onClick={onPressButton}
+      disabled={props.disabled}
+      class={classString}
     >
       {props.text}
     </button>

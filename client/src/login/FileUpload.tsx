@@ -3,12 +3,12 @@ import { Show } from "solid-js";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 
-
 const FileUpload = (props: {
   onFileDropped: (e: Event) => void;
   onFileChange: (e: Event) => void;
   title: string;
   description: string;
+  uploadName?: string;
   children?: JSX.Element;
   class?: string;
 }) => {
@@ -51,6 +51,8 @@ const FileUpload = (props: {
         {props.title}
       </label>
       <span class="text-sm text-slate-500">{props.description}</span>
+      <br/>
+      <h1 class="text-xl font-bold text-slate-600">{props.uploadName}</h1>
       <div
         title="upload-box"
         draggable
@@ -92,7 +94,6 @@ const FileUpload = (props: {
         >
           <div
             class="
-            p-5
             h-full 
               w-full 
               text-center 
@@ -101,7 +102,7 @@ const FileUpload = (props: {
               items-center 
               justify-center"
           >
-            <div class="p-10">
+            <div class="h-10 w-10">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-10 h-10 text-slate-400 group-hover:text-slate-700"
@@ -117,7 +118,6 @@ const FileUpload = (props: {
                 />
               </svg>
             </div>
-            <div class="flex flex-auto w-2/5 mx-auto -mt-10"></div>
             <Show when={isAdvancedUpload()} fallback={BasicUpload}>
               <p class="text-slate-500 ">
                 {UPLOAD_CONSTANTS.FILE_SELECT_DRAG}

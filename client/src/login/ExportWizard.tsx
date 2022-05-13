@@ -4,8 +4,6 @@ import { createSignal, createEffect, createResource } from "solid-js";
 
 import { on, Show, Switch, Match, For } from "solid-js";
 
-import axios, { AxiosError } from "axios";
-
 import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
 import { ValidatedTextField, ProgressSpinner, Button } from "../components";
@@ -14,15 +12,17 @@ import { useExports } from "../weclock/ExportProvider";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
-import { HiSolidXCircle, HiSolidFolder } from "solid-icons/hi";
+import { HiSolidFolder } from "solid-icons/hi";
+import { unwrap } from "solid-js/store";
 
 const FilePreview = (props: {
   file: File;
   onPressDelete: (file: File) => void;
 }) => {
-  const abbreviatedFileName = props.file.name.slice(0, 20) + "...";
+  const abbreviatedFileName =
+    props.file.name.slice(0, 20) + (props.file.name.length > 20 ? "..." : "");
   return (
-    <div class="flex flex-row align-content-start justify-between px-5 py-2 w-full">
+    <div class="flex flex-row align-content-start justify-between py-2 w-full">
       <div class="flex flex-row justify-start items-center">
         <HiSolidFolder class="h-10 w-10 px-1" />
         <p class="text-black font-semibold text-left">{abbreviatedFileName}</p>
@@ -81,17 +81,40 @@ const ExportWizard: Component = (props) => {
     );
   };
 
+  const onNextParticipant = () => {
+    const exports = unwrap(exportState).exports as WeClockExport[];
+    const currentExport = unwrap(getCurrentExport()) as WeClockExport;
+    let idx = exports.findIndex(
+      (e) => e.identifier === currentExport.identifier
+    );
+    let nextIdx = idx + 1;
+    if (nextIdx >= exports.length) {
+      addNewParticipant();
+    } else {
+      setCurrentExportId(exports[nextIdx].identifier);
+    }
+  };
+
+  const onPreviousParticipant = () => {
+    const exports = unwrap(exportState).exports as WeClockExport[];
+    const currentExport = unwrap(getCurrentExport()) as WeClockExport;
+    let idx = exports.findIndex(
+      (e) => e.identifier === currentExport.identifier
+    );
+    let nextIdx = idx - 1;
+    if (nextIdx < 0) {
+      return;
+    } else {
+      setCurrentExportId(exports[nextIdx].identifier);
+    }
+  };
+
   // update current export's uploaded files when new files are added
   createEffect(
     on(droppedFiles, (prev) => {
       let files = droppedFiles();
       if (files.length > 0) {
-        let exps = exportState.exports as WeClockExport[];
-        if (exps.length === 0) {
-          addNewParticipant(droppedFiles());
-        } else if (exportState.currentExportId !== null) {
-          addFilesToExport(exportState.currentExportId, files);
-        }
+        addFilesToExport(unwrap(exportState).currentExportId, files);
       }
     })
   );
@@ -189,14 +212,23 @@ const ExportWizard: Component = (props) => {
             description={UPLOAD_CONSTANTS.UPLOAD_FORM_DESC}
             onFileChange={onFileChange}
             onFileDropped={onFileDropped}
+            uploadName={`Participant ${getCurrentExport()?.identifier || ""}`}
           >
             <FileList files={currentFiles()} />
           </FileUpload>
-          <div>
+          <div class="flex flex-row flex-wrap justify-between">
             <Button
-              onClick={addNewParticipant}
+              class="w-full sm:w-auto"
+              onClick={onPreviousParticipant}
+              text={"Previous Participant"}
               disabled={false}
-              text={"Add New Participant"}
+            />
+
+            <Button
+              class="w-full sm:w-auto"
+              disabled={getCurrentExport() == null}
+              onClick={onNextParticipant}
+              text={"Next Participant"}
             />
           </div>
           <div>
