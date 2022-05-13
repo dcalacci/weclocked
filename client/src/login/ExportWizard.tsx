@@ -16,15 +16,22 @@ import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
 import { HiSolidXCircle, HiSolidFolder } from "solid-icons/hi";
 
-const FilePreview = (props: { file: File }) => {
+const FilePreview = (props: {
+  file: File;
+  onPressDelete: (file: File) => void;
+}) => {
+  const abbreviatedFileName = props.file.name.slice(0, 20) + "...";
   return (
     <div class="flex flex-row align-content-start justify-between px-5 py-2 w-full">
       <div class="flex flex-row justify-start items-center">
         <HiSolidFolder class="h-10 w-10 px-1" />
-        <p class="text-black font-semibold text-center">{props.file.name}</p>
+        <p class="text-black font-semibold text-left">{abbreviatedFileName}</p>
       </div>
       <div>
-        <button class=" py-1 border-red-600 hover:bg-red-400 border-2 font-bold w-20">
+        <button
+          onClick={() => props.onPressDelete(props.file)}
+          class=" py-1 border-red-600 hover:bg-red-400 border-2 font-bold w-20"
+        >
           Delete
         </button>
       </div>
@@ -130,10 +137,16 @@ const ExportWizard: Component = (props) => {
   );
 
   const FileList: Component<{ files: File[] }> = (props): JSX.Element => {
+    const deleteFile = (file: File) => {
+      const newFiles = currentFiles().filter((f) => f !== file);
+      setCurrentFiles(newFiles);
+    };
     return (
       <Show when={props.files.length > 0} fallback={<div></div>}>
         <For each={props.files}>
-          {(file, index) => <FilePreview file={file} />}
+          {(file, index) => (
+            <FilePreview file={file} onPressDelete={deleteFile} />
+          )}
         </For>
       </Show>
     );
