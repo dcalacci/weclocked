@@ -3,8 +3,6 @@ import type { Component } from "solid-js";
 import { produce } from "solid-js/store";
 import { createLocalStore } from "../store";
 
-import { getStorage } from "@sifrr/storage";
-
 import { WeClockExport } from "./export";
 import { STORAGE_CONSTANTS } from "../constants";
 
@@ -15,11 +13,14 @@ interface ExportState {
 }
 
 interface ExportActions {
+  getCurrentExport: () => WeClockExport | undefined;
   getExport: (identifier: string) => WeClockExport | undefined;
   addExport: (exportObj: WeClockExport) => void;
   addFilesToExport: (identifier: string, files: File[]) => void;
+  setExportFiles: (identifier: string, files: File[]) => void;
   setUserEmail: (email: string) => void;
   setCurrentExportId: (identifier: string | null) => void;
+  setCurrentFiles: (files: File[]) => void;
 }
 
 const ExportsContext = createContext<[ExportState, ExportActions]>();
@@ -40,8 +41,12 @@ const ExportsProvider: Component = (props) => {
     // but that makes no sense. Should be fine.
     state,
     {
-      setCurrentExportId: (identifier: string | null) => {
-        setState("currentExportId", identifier);
+      getCurrentExport: () => {
+        let exps = state.exports as WeClockExport[];
+        let exp = exps.find(
+          (exportObj) => exportObj.identifier === state.currentExportId
+        );
+        return exp;
       },
       getExport: (identifier) => {
         let exps = state.exports as WeClockExport[];
@@ -53,17 +58,39 @@ const ExportsProvider: Component = (props) => {
           "exports",
           (exp) => exp.identifier === identifier,
           produce((exp) => {
+            console.log("[store] found export by id:", exp);
             exp.files = [...exp.files, ...files];
           })
         );
-      },
-      setUserEmail: (email: string) => {
-        setState("email", email);
       },
       addExport: (exportObj: WeClockExport) => {
         setState(
           produce((s) => {
             s.exports.push(exportObj);
+          })
+        );
+      },
+      setExportFiles: (identifier: string, files: File[]) => {
+        setState(
+          "exports",
+          (exp) => exp.identifier === identifier,
+          produce((exp) => {
+            exp.files = files;
+          })
+        );
+      },
+      setCurrentExportId: (identifier: string | null) => {
+        setState("currentExportId", identifier);
+      },
+      setUserEmail: (email: string) => {
+        setState("email", email);
+      },
+      setCurrentFiles: (files: File[]) => {
+        setState(
+          "exports",
+          (exp) => exp.identifier === state.currentExportId,
+          produce((exp) => {
+            exp.files = files;
           })
         );
       },

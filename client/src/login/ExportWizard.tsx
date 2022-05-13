@@ -1,106 +1,33 @@
-import { Component, Accessor, JSX, createMemo } from "solid-js";
+import { Component, JSX, createMemo } from "solid-js";
 
-import {
-  createSignal,
-  createEffect,
-  createResource,
-  useContext,
-} from "solid-js";
+import { createSignal, createEffect, createResource } from "solid-js";
 
 import { on, Show, Switch, Match, For } from "solid-js";
 
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
-import ValidatedTextField from "../components/ValidatedTextField";
+import { ValidatedTextField, ProgressSpinner, Button } from "../components";
 
-import { ExportsContext, useExports } from "../weclock/ExportProvider";
+import { useExports } from "../weclock/ExportProvider";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
-import { unwrap } from "solid-js/store";
+import { HiSolidXCircle, HiSolidFolder } from "solid-icons/hi";
 
 const FilePreview = (props: { file: File }) => {
   return (
-    <div class="flex-col justify-center sm:max-w-lg w-full p-10 border-secondary-200 border-2 rounded-sm">
-      <p class="text-black font-semibold text-center">{props.file.name}</p>
-    </div>
-  );
-};
-
-const UploadButton = (props: {
-  text: string;
-  onClick: () => void;
-  disabled: boolean;
-}) => {
-  const onPressButton = (e: Event) => {
-    e = e || window.event;
-    e.preventDefault();
-    props.onClick();
-  };
-  return (
-    <button
-      type="submit"
-      onClick={onPressButton}
-      disabled={props.disabled}
-      class="
-							my-5 
-							p-4
-							w-full flex justify-center 
-							bg-white
-							border-4
-							border-slate-500
-							rounded-sm
-							tracking-wide
-							text-slate-500 
-							font-semibold  
-							hover:bg-slate-100 
-							hover:text-slate-700
-							active:bg-slate-200 
-							active:shadow-sm
-							shadow-lg 
-							cursor-pointer 
-							transition 
-							ease-in"
-    >
-      {props.text}
-    </button>
-  );
-};
-
-const ProgressSpinner = (props: { percent: number }) => {
-  return (
-    <div
-      class="
-									transition 
-									ease-in 
-									flex
-									justify-center
-									items-center"
-    >
-      <div class="w-12 h-12 flex">
-        <div
-          class="w-12 h-12 
-				rounded-full 
-				absolute
-				border-4 
-				border-solid 
-				border-gray-200"
-        ></div>
-
-        <div
-          class="w-12 h-12 
-				rounded-full 
-				animate-spin 
-				absolute
-				border-4 
-				border-solid 
-				border-green-500 
-				border-t-transparent"
-        ></div>
+    <div class="flex flex-row align-content-start justify-between px-5 py-2 w-full">
+      <div class="flex flex-row justify-start items-center">
+        <HiSolidFolder class="h-10 w-10 px-1" />
+        <p class="text-black font-semibold text-center">{props.file.name}</p>
       </div>
-      <p class="text-slate-500 font-semibold text-lg w-24 px-3">{`${props.percent}%`}</p>
+      <div>
+        <button class=" py-1 border-red-600 hover:bg-red-400 border-2 font-bold w-20">
+          Delete
+        </button>
+      </div>
     </div>
   );
 };
@@ -109,152 +36,58 @@ const ExportWizard: Component = (props) => {
   const [error, setError] = createSignal("");
   const [email, setEmail] = createSignal("");
 
-  const [uploadedFiles, setUploadedFiles] = createSignal<File[]>([]);
-  const [uploadPercent, setUploadPercent] = createSignal(0);
+  const [droppedFiles, setDroppedFiles] = createSignal<File[]>([]);
 
   const [
     exportState,
     {
-      setCurrentExportId,
+      getCurrentExport,
       getExport,
+      setCurrentExportId,
+      setCurrentFiles,
       setUserEmail,
+      setExportFiles,
       addFilesToExport,
       addExport,
     },
   ] = useExports();
 
-  const currentExport = createMemo<WeClockExport | undefined>(() => {
-    let exps = exportState.exports as WeClockExport[];
-    console.log(
-      "[currentExport] calculating current export:",
-      exportState.currentExportId
-    );
-    let exp = exps.find(
-      (exportObj) => exportObj.identifier === exportState.currentExportId
-    );
-    return exp;
+  const currentFiles = createMemo<File[]>(() => {
+    let exp = getCurrentExport();
+    return exp ? exp.files : [];
   });
-
-  const currentFiles = createMemo<File[]>(() =>
-    currentExport() ? currentExport()!.files : []
-  );
-
-  const [emailAndFiles, setEmailAndFiles] = createSignal<{
-    files: File[];
-    email: string;
-  }>({ files: [], email: "" });
-
-  const addNewParticipant = (files?: File[]) => {
-    const exportObj = new WeClockExport(files || []);
-    console.log("adding new export/participant:", exportObj);
-    addExport(exportObj);
-    console.log("setting new export id:", exportObj.identifier);
-    setCurrentExportId(exportObj.identifier);
-  };
 
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
 
-  // disappear errors after a few seconds
-  createEffect(
-    on(error, () => {
-      setTimeout(() => setError(""), 10000), { defer: true };
-    })
-  );
+  const addNewParticipant = (files?: File[]) => {
+    const exportObj = new WeClockExport(files || []);
+    addExport(exportObj);
+    setCurrentExportId(exportObj.identifier);
+    console.log(
+      "[addNewParticipant]: added new export/participant:",
+      exportObj
+    );
+    console.log(
+      "[addNewParticipant]: set new export id:",
+      exportObj.identifier
+    );
+  };
 
+  // update current export's uploaded files when new files are added
   createEffect(
-    on(uploadedFiles, () => {
-      let files = uploadedFiles();
+    on(droppedFiles, (prev) => {
+      let files = droppedFiles();
       if (files.length > 0) {
-        // let currentExports = unwrap(exportState).exports;
         let exps = exportState.exports as WeClockExport[];
         if (exps.length === 0) {
-          console.log("No exports. Adding a new one:");
-          addNewParticipant(uploadedFiles());
+          addNewParticipant(droppedFiles());
         } else if (exportState.currentExportId !== null) {
-          console.log(
-            "Adding uploaded file to existing export:",
-            exportState.currentExportId
-          );
           addFilesToExport(exportState.currentExportId, files);
         }
       }
     })
   );
-
-  const onUploadProgress = (event: ProgressEvent) => {
-    const percentage = Math.round((100 * event.loaded) / event.total);
-    setUploadPercent(percentage);
-  };
-
-  interface UploadData {
-    wb_info: { url: string };
-    upload: string;
-  }
-
-  async function uploadFile(source: {
-    files: File[];
-    email: string;
-  }): Promise<UploadData | undefined> {
-    if (source.files.length == 0) return undefined;
-    const files = source.files;
-    const email = source.email;
-    const formData = new FormData();
-    Array.from(files).forEach((f: File) => {
-      formData.append("file", f);
-    });
-    formData.append("email", email);
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/exports/upload/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress,
-        }
-      );
-      if (response.data.wb_info) {
-        console.log("wb info:", response.data.wb_info);
-        return response.data;
-      }
-    } catch (err) {
-      const errors = err as Error | AxiosError;
-      if (axios.isAxiosError(errors)) {
-        console.log("Something wrong with the request");
-      } else {
-        console.log("Some other error, oops");
-      }
-    }
-    return undefined;
-  }
-
-  const [data, { mutate, refetch }] = createResource<
-    UploadData | undefined,
-    { files: File[]; email: string }
-  >(emailAndFiles, uploadFile);
-
-  const onFileUpload = () => {
-    //    event.preventDefault()
-    const files = uploadedFiles();
-    const formData = new FormData();
-    const validEmail = validateEmail(email());
-
-    if (!validEmail) {
-      setError(
-        "We think that email address is invalid. Please use a valid e-mail!"
-      );
-      return;
-    }
-    if (files) {
-      // setExportFiles(files);
-      setEmailAndFiles({ files, email: email() });
-    } else {
-      setError("File not uploaded. Try again?");
-    }
-    return false;
-  };
 
   const onFileChange = (event: Event) => {
     if (event.target != null) {
@@ -262,7 +95,7 @@ const ExportWizard: Component = (props) => {
         (event.target as HTMLInputElement).files || []
       );
       if (files && files.length > 0) {
-        setUploadedFiles([...files, ...uploadedFiles()]);
+        setDroppedFiles(files);
       } else {
         setError("No files selected.");
       }
@@ -276,7 +109,7 @@ const ExportWizard: Component = (props) => {
     if (e.dataTransfer) {
       const files = Array.from<File>(e.dataTransfer.files);
       if (files && files.length > 0) {
-        setUploadedFiles([...files, ...uploadedFiles()]);
+        setDroppedFiles(files);
       } else {
         setError("No files detected, try again...");
       }
@@ -284,7 +117,8 @@ const ExportWizard: Component = (props) => {
   };
 
   const cancelUpload = () => {
-    setUploadedFiles([]);
+    setDroppedFiles([]);
+    setCurrentFiles([]);
     //@ts-ignore
     mutate(undefined);
   };
@@ -296,8 +130,6 @@ const ExportWizard: Component = (props) => {
   );
 
   const FileList: Component<{ files: File[] }> = (props): JSX.Element => {
-    // let exp = unwrap(props.exportObj);
-    console.log("[FileList] rendering file list:", props.files);
     return (
       <Show when={props.files.length > 0} fallback={<div></div>}>
         <For each={props.files}>
@@ -347,77 +179,15 @@ const ExportWizard: Component = (props) => {
           >
             <FileList files={currentFiles()} />
           </FileUpload>
-
           <div>
-            <Switch>
-              <Match when={!data.loading && !data()}>
-                <UploadButton
-                  onClick={addNewParticipant}
-                  disabled={false}
-                  text={"Add New Participant"}
-                />
-                <UploadButton
-                  onClick={onFileUpload}
-                  disabled={uploadedFiles().length == 0}
-                  text={"Process Exports"}
-                />
-              </Match>
-              <Match when={data.loading}>
-                <ProgressSpinner percent={uploadPercent()} />
-              </Match>
-              <Match when={!data.loading && data()}>
-                <p
-                  class="
-									transition ease-in
-									p-2
-									rounded-sm
-									border-4
-									border-emerald-600
-									bg-emerald-500
-									text-white
-									font-semibold
-									text-center
-									"
-                >
-                  Done!
-                </p>
-                <a href={data()!.wb_info?.url}>
-                  <p
-                    class="
-									transition ease-in
-									m-2
-									p-2
-									rounded-sm
-									border-4
-									text-slate-500
-									font-semibold
-									text-center
-									border-slate-500
-									"
-                  >
-                    Go To Google Sheet
-                  </p>
-                </a>
-                <a href={"/label"}>
-                  <p
-                    class="
-									transition ease-in
-									m-2
-									p-2
-									rounded-sm
-									border-4
-									text-slate-500
-									font-semibold
-									text-center
-									border-slate-500
-									"
-                  >
-                    Next
-                  </p>
-                </a>
-              </Match>
-            </Switch>
-            <Show when={uploadedFiles().length > 0}>
+            <Button
+              onClick={addNewParticipant}
+              disabled={false}
+              text={"Add New Participant"}
+            />
+          </div>
+          <div>
+            <Show when={currentFiles().length > 0}>
               <p
                 onClick={cancelUpload}
                 class="transition 

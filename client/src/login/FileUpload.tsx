@@ -1,7 +1,5 @@
-import { createSignal, createResource, JSX, Accessor, Setter } from "solid-js";
-import type { Component } from "solid-js";
-
-import { on, Show, Switch, Match } from "solid-js";
+import { createSignal, JSX } from "solid-js";
+import { Show } from "solid-js";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 

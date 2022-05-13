@@ -1,17 +1,14 @@
 import {
-  createUniqueId,
-  createContext,
-  useContext,
   createEffect,
   createSignal,
   on,
 } from "solid-js";
-import type { Component, Context } from "solid-js";
-import { createStore, produce, unwrap } from "solid-js/store";
+import { createStore, unwrap } from "solid-js/store";
 import type { Store, SetStoreFunction } from "solid-js/store";
 
 import { getStorage } from "@sifrr/storage";
 
+console.log("get storage?", getStorage);
 const storage = getStorage("indexeddb");
 
 //TODO: trying to make the overall state persist in local storage here.
@@ -33,8 +30,6 @@ function createLocalStore<T>(
       //@ts-ignore
       let val = v[storageKey];
       setState(val);
-    } else {
-      console.log("no saved exports.");
     }
   });
 
