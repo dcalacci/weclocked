@@ -113,7 +113,7 @@ const FileUpload = (props: {
               </svg>
             </div>
             <Show when={isAdvancedUpload()} fallback={BasicUpload}>
-              <p class="text-slate-500 ">
+              <p class="text-slate-500 p-2 border-b-2">
                 {UPLOAD_CONSTANTS.FILE_SELECT_DRAG}
                 <br />{" "}
               </p>
@@ -127,10 +127,11 @@ const FileUpload = (props: {
             class="hidden"
             onChange={props.onFileChange}
           />
-        </label>
         <div class="flex flex-col items-center justify-center w-full">
           {props.children}
         </div>
+        </label>
+
       </div>
     </div>
   );

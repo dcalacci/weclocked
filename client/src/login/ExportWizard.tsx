@@ -1,30 +1,19 @@
-import {
-  Component,
-  JSX,
-  createMemo,
-  Setter,
-  createUniqueId,
-  mergeProps,
-} from "solid-js";
+import { Component, JSX, createMemo } from "solid-js";
 
-import { createSignal, createEffect, createResource } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 
-import { on, Show, Switch, Match, For } from "solid-js";
+import { on, Show, For } from "solid-js";
 
 import { validateEmail } from "../utils";
 import FileUpload from "./FileUpload";
-import { ValidatedTextField, ProgressSpinner, Button } from "../components";
+import { ValidatedTextField, Button } from "../components";
 
-import {
-  ExportActions,
-  ExportState,
-  useExports,
-} from "../weclock/ExportProvider";
+import { useExports } from "../weclock/ExportProvider";
 
 import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
 import { HiSolidFolder } from "solid-icons/hi";
-import { createStore, Store, unwrap } from "solid-js/store";
+import { unwrap } from "solid-js/store";
 
 const FilePreview = (props: {
   file: File;
@@ -65,22 +54,26 @@ const ExportWizard: Component = (props) => {
       getCurrentExport,
       setCurrentExportIndex,
       setCurrentFiles,
+      setCurrentNotes,
       setUserEmail,
-      setExportFiles,
       addFilesToExport,
       addExport,
       updateExportId,
+      clearExports,
     },
   ] = useExports();
 
+  const processExports = () => {
+    console.log("processing exports...");
+  };
+
   const updateCurrentExportId = (newId: string) => {
-    console.log(
-      "changing id for index...",
-      exportState.currentExportIndex,
-      newId
-    );
     updateExportId(exportState.currentExportIndex, newId);
   };
+
+  const currentExport = createMemo(() => {
+    return exportState.exports[exportState.currentExportIndex];
+  });
 
   const currentId = createMemo(() => {
     return exportState.exports[exportState.currentExportIndex].identifier;
@@ -101,13 +94,6 @@ const ExportWizard: Component = (props) => {
 
     const currentIdx = exportState.currentExportIndex;
     let nextIdx = currentIdx + 1;
-    console.log(
-      "[onNextParticipant]: current export idx:",
-      currentIdx,
-      "|",
-      nextIdx,
-      exports
-    );
     if (nextIdx >= exports.length) {
       addExport();
       setCurrentExportIndex(nextIdx);
@@ -131,12 +117,6 @@ const ExportWizard: Component = (props) => {
     on(droppedFiles, (prev) => {
       let files = droppedFiles();
       if (files.length > 0) {
-        console.log(
-          "[onDroppedFiles] adding ",
-          files,
-          "to ",
-          exportState.currentExportIndex
-        );
         addFilesToExport(exportState.currentExportIndex, files);
       }
     })
@@ -172,6 +152,7 @@ const ExportWizard: Component = (props) => {
   const cancelUpload = () => {
     setDroppedFiles([]);
     setCurrentFiles([]);
+    clearExports();
   };
 
   const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
@@ -229,7 +210,6 @@ const ExportWizard: Component = (props) => {
             description={UPLOAD_CONSTANTS.EMAIL_DESC}
             placeholder={"solidarity@weclock.it"}
           />
-
           <div class="flex flex-col space-y-2">
             <label class="text-xl font-bold text-slate-600 tracking-wide">
               {UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
@@ -239,32 +219,75 @@ const ExportWizard: Component = (props) => {
             </span>
             <br />
           </div>
-          <ValidatedTextField
-            text={currentId}
-            setText={updateCurrentExportId}
-            title={"Participant ID"}
-          />
-          <h1 class="text-xl font-bold">{getCurrentExport().identifier}</h1>
-          <FileUpload onFileChange={onFileChange} onFileDropped={onFileDropped}>
-            <FileList files={getCurrentExport().files} />
-          </FileUpload>
-          <div class="flex flex-row flex-wrap justify-between">
-            <Button
-              class="w-full sm:w-auto"
-              onClick={onPreviousParticipant}
-              text={"Previous Participant"}
-              disabled={false}
+
+          <div>
+            <FileUpload
+              onFileChange={onFileChange}
+              onFileDropped={onFileDropped}
+            >
+              <FileList files={getCurrentExport().files} />
+            </FileUpload>
+
+            <ValidatedTextField
+              class="pt-2"
+              text={() => currentExport().identifier}
+              validator={(s) => s != ""}
+              setText={updateCurrentExportId}
+              description={"A useful identifier for this participant"}
+              title={"Participant ID"}
+              inputClass="font-bold"
+            />
+            <ValidatedTextField
+              class="pt-2"
+              text={() => currentExport().notes}
+              validator={(s) => s != ""}
+              setText={(s) => setCurrentNotes(s)}
+              description={"Notes for this participant or export"}
+              title={"Notes"}
+              inputClass="font-bold"
             />
 
-            <Button
-              class="w-full sm:w-auto"
-              disabled={getCurrentExport() == null}
-              onClick={onNextParticipant}
-              text={"Next Participant"}
-            />
-          </div>
-          <div>
-            <Show when={currentFiles().length > 0}>
+            {/* <h1 class="text-xl font-bold">{getCurrentExport().identifier}</h1> */}
+            <div class="flex flex-row flex-wrap justify-between">
+              <Button
+                class="w-full sm:w-auto"
+                onClick={onPreviousParticipant}
+                text={"Previous Participant"}
+                disabled={false}
+              />
+
+              <Button
+                class="w-full sm:w-auto"
+                disabled={getCurrentExport() == null}
+                onClick={onNextParticipant}
+                text={"Next Participant"}
+              />
+            </div>
+            <Show when={exportState.exports.length >= 1}>
+              <p
+                onClick={processExports}
+                class="transition 
+							text-center
+							ease-in 
+							shadow-md
+							border-green-400
+							border-2
+							cursor-pointer 
+							font-semibold
+							rounded-sm
+							hover:shadow-md
+							hover:bg-green-200 
+							hover:text-slate-700
+							active:bg-green-300 
+							active:shadow-sm
+								my-5
+								p-4"
+              >
+                Process Exports
+              </p>
+            </Show>
+
+            <Show when={exportState.exports.length >= 1}>
               <p
                 onClick={cancelUpload}
                 class="transition 
@@ -284,7 +307,7 @@ const ExportWizard: Component = (props) => {
 								my-5
 								p-4"
               >
-                Cancel
+                Clear All
               </p>
             </Show>
           </div>

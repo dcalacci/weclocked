@@ -26,7 +26,7 @@ export default (props: {
       <input
         onInput={onTextChange}
         value={props.text()}
-        type="text"
+        type="textarea"
         class={`
 								${
                   props.validator && props.validator(props.text())

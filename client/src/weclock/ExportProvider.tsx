@@ -21,6 +21,7 @@ export type ExportActions = {
   setUserEmail: (email: string) => void;
   setCurrentExportIndex: (idx: number) => void;
   setCurrentFiles: (files: File[]) => void;
+  setCurrentNotes: (notes: string) => void;
   updateExportId: (idx: number, newId: string) => void;
   clearExports: () => void;
 };
@@ -97,6 +98,14 @@ const ExportsProvider: Component = (props) => {
           (exp) => new WeClockExport([...files], exp.identifier, exp.notes)
         );
       },
+      setCurrentNotes: (notes: string) => {
+        setState(
+          "exports",
+          state.currentExportIndex,
+          (exp) => new WeClockExport([...exp.files], exp.identifier, notes)
+        );
+      },
+
       updateExportId: (idx: number, newId: string) => {
         setState(
           "exports",
