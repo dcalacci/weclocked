@@ -47,6 +47,7 @@ export default (props: {
     formData.append("identifiers", identifiers.join("|"));
     formData.append("email", email);
     try {
+      //TODO: change to server URL
       const response = await axios.post(
         "http://localhost:5000/exports/upload",
         formData,
@@ -58,7 +59,7 @@ export default (props: {
         }
       );
       if (response.data.wb_info) {
-        console.log("wb info:", response.data.wb_info);
+        console.log("response data:", response.data)
         return response.data;
       }
     } catch (err) {

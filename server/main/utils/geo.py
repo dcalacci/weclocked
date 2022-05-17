@@ -4,12 +4,12 @@ from sklearn.cluster import DBSCAN
 
 kms_per_radian = 6371.0088
 
-
 def get_trips(
     traj_df, min_trip_dist_mi=1.0, minutes_for_stop=5, no_data_for_minutes=60
 ):
     from skmob.preprocessing import detection
     import pandas as pd
+    traj_df = TrajDataFrame(traj_df)
 
     stop_df = detection.stay_locations(
         traj_df,
@@ -65,7 +65,6 @@ def get_trips(
 def cluster_stops(tdf, cluster_radius_km, min_samples):
     # From dataframe convert to numpy matrix
     lat_lng_dtime_other = tdf[["lng", "lat", "datetime", "leaving_datetime"]].values
-    columns_order = list(tdf.columns)
 
     labels = _cluster_array(lat_lng_dtime_other, cluster_radius_km, min_samples)
     return tdf.assign(clusterID=labels)
