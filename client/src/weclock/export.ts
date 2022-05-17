@@ -8,24 +8,22 @@ export interface JSONWeClockExport {
   fileNames: string[];
 }
 
+export type Stops = {
+  identifier: string;
+  records: {
+    datetime: string;
+    lat: number;
+    lng: number;
+    type: string;
+  };
+};
+
 export type UploadData = {
   wb_info: { url: string };
   upload: string;
   message: string;
-  data: [
-    {
-      identifier: string;
-      records: {
-        datetime: string;
-        lat: number;
-        lng: number;
-        type: string;
-      };
-    }
-  ];
+  data: Stops[];
 };
-
-
 
 // represents a collection of file exports from a single WeClock user
 export class WeClockExport {
@@ -51,6 +49,7 @@ export class WeClockExport {
   get fileNames(): string[] {
     return this.files.map((f) => f.name);
   }
+
 
   // returns a new weclock export from a well-formatted json
   static fromJSON(json: JSONWeClockExport): WeClockExport {

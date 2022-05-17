@@ -1,18 +1,29 @@
-import { createResource, createSignal, Match, Switch } from "solid-js";
+import {
+  createEffect,
+  createResource,
+  createSignal,
+  Match,
+  on,
+  Switch,
+} from "solid-js";
 import axios, { AxiosError } from "axios";
 import { UploadData, WeClockExport } from "../weclock/export";
 import { ProgressSpinner } from "../components";
+import { useExports } from "../weclock/ExportProvider";
 
 export default (props: {
   exports: WeClockExport[];
   email: string;
   setError: (err: string) => void;
+  onUploaded: () => void;
 }) => {
   const [uploadPercent, setUploadPercent] = createSignal(0);
   const [uploadData, setUploadData] = createSignal<{
     exports: WeClockExport[];
     email: string;
   }>({ exports: [], email: "" });
+
+  const [exportState, { setStops }] = useExports();
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
@@ -59,7 +70,6 @@ export default (props: {
         }
       );
       if (response.data.wb_info) {
-        console.log("response data:", response.data);
         return response.data;
       }
     } catch (err) {
@@ -68,6 +78,7 @@ export default (props: {
         props.setError("Error uploading exports: " + errors.message);
         console.log("Something wrong with the request");
       } else {
+        props.setError("Error uploading exports: " + errors.message);
         console.log("Some other error, oops");
       }
     }
@@ -78,6 +89,15 @@ export default (props: {
     UploadData | undefined,
     { exports: WeClockExport[]; email: string }
   >(uploadData, uploadExports);
+
+  createEffect(
+    on(data, (d) => {
+      if (d) {
+        props.onUploaded();
+        setStops(d.data);
+      }
+    })
+  );
 
   return (
     <Switch>

@@ -15,6 +15,7 @@ import { WeClockExport } from "../weclock/export";
 import { HiSolidFolder } from "solid-icons/hi";
 import { unwrap } from "solid-js/store";
 import UploadProgress from "./UploadProgress";
+import { useNavigate } from "solid-app-router";
 
 const FilePreview = (props: {
   file: File;
@@ -48,10 +49,11 @@ const ExportWizard: Component = (props) => {
   const [error, setError] = createSignal("");
   const [email, setEmail] = createSignal("");
   const [droppedFiles, setDroppedFiles] = createSignal<File[]>([]);
+  const navigate = useNavigate();
 
   createEffect(
     on(error, () => {
-      console.log("error set:", error())
+      console.log("error set:", error());
       setTimeout(() => setError(""), 10000), { defer: true };
     })
   );
@@ -272,6 +274,7 @@ const ExportWizard: Component = (props) => {
               exports={exportState.exports as WeClockExport[]}
               email={email()}
               setError={setError}
+              onUploaded={() => navigate("/label")}
             />
             <Show when={exportState.exports.length >= 1}>
               <p

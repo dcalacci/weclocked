@@ -23,14 +23,15 @@ const FileItem = (props: { children?: Element; fileId: string }) => {
 
 const FileList = () => {
   const [exportState, { setExportFiles }] = useExports();
+
   return (
     <div class="flex-col content-center justify-center w-full p-5">
-      <p>Uploaded {exportState.dataExport.files.length} files.</p>
-      <For each={exportState.dataExport.files}>
-        {(f: File) => <FileItem fileId={f.name}></FileItem>}
+      <p>Uploaded {exportState.exports.length} files.</p>
+      <For each={exportState.exports as WeClockExport[]}>
+        {(ex: WeClockExport) => <FileItem fileId={ex.identifier}></FileItem>}
       </For>
     </div>
   );
 };
 
-export { FileItem, FileList};
+export { FileItem, FileList };
