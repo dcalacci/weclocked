@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
+from skmob import TrajDataFrame
 import datasheets
 from human_id import generate_id
 
 class WeClockExport:
-    def __init__(self, filename_or_file):
+    def __init__(self, identifier, filename_or_file):
+        self.identifier = identifier
         self.filename_or_file = filename_or_file
         self.df = self.parse_export_file(self.filename_or_file)
 
@@ -17,13 +19,22 @@ class WeClockExport:
              )
         return df
 
-    def geo_df(self):
+    def geo_df(self) -> pd.DataFrame:
         geodf = (self.df
             .query("type == 'geologging'")
             .assign(value1 = lambda x: pd.to_numeric(x.value1, errors='coerce'))
             .drop(['idx'], axis=1)
+            .rename(columns={'value1': "lat", "value2": "lng", "date_time": "datetime"})
+            .assign(datetime = lambda x: pd.to_datetime(x.datetime))
             )
         return geodf
+
+    def get_clusters(self, cluster_radius=1., min_stops=2) -> TrajDataFrame:
+        from . import geo
+        # uses geo.cluster_stops to get a Data Frame with a new column for clusters
+        trajectorie, sdf, stop_df = geo.get_trips(self.geo_df())
+        return geo.cluster_stops(stop_df, cluster_radius, min_stops)
+
 
     def caps(self, s): 
         return " ".join([s[0].upper() + s[1:] for s in str(s).split(" ")])
