@@ -17,11 +17,13 @@ class WeClockExport:
              )
         return df
 
-    def geo_df(self):
+    def geo_df(self) -> pd.DataFrame:
         geodf = (self.df
             .query("type == 'geologging'")
             .assign(value1 = lambda x: pd.to_numeric(x.value1, errors='coerce'))
             .drop(['idx'], axis=1)
+            .rename(columns={'value1': "lat", "value2": "lng", "date_time": "datetime"})
+            .assign(datetime = lambda x: pd.to_datetime(x.datetime))
             )
         return geodf
 
