@@ -14,6 +14,7 @@ import { UPLOAD_CONSTANTS } from "../constants";
 import { WeClockExport } from "../weclock/export";
 import { HiSolidFolder } from "solid-icons/hi";
 import { unwrap } from "solid-js/store";
+import UploadProgress from "./UploadProgress";
 
 const FilePreview = (props: {
   file: File;
@@ -48,6 +49,13 @@ const ExportWizard: Component = (props) => {
   const [email, setEmail] = createSignal("");
   const [droppedFiles, setDroppedFiles] = createSignal<File[]>([]);
 
+  createEffect(
+    on(error, () => {
+      console.log("error set:", error())
+      setTimeout(() => setError(""), 10000), { defer: true };
+    })
+  );
+
   const [
     exportState,
     {
@@ -62,10 +70,6 @@ const ExportWizard: Component = (props) => {
       clearExports,
     },
   ] = useExports();
-
-  const processExports = () => {
-    console.log("processing exports...");
-  };
 
   const updateCurrentExportId = (newId: string) => {
     updateExportId(exportState.currentExportIndex, newId);
@@ -263,30 +267,12 @@ const ExportWizard: Component = (props) => {
                 text={"Next Participant"}
               />
             </div>
-            <Show when={exportState.exports.length >= 1}>
-              <p
-                onClick={processExports}
-                class="transition 
-							text-center
-							ease-in 
-							shadow-md
-							border-green-400
-							border-2
-							cursor-pointer 
-							font-semibold
-							rounded-sm
-							hover:shadow-md
-							hover:bg-green-200 
-							hover:text-slate-700
-							active:bg-green-300 
-							active:shadow-sm
-								my-5
-								p-4"
-              >
-                Process Exports
-              </p>
-            </Show>
 
+            <UploadProgress
+              exports={exportState.exports as WeClockExport[]}
+              email={email()}
+              setError={setError}
+            />
             <Show when={exportState.exports.length >= 1}>
               <p
                 onClick={cancelUpload}
