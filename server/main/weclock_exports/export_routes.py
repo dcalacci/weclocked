@@ -7,27 +7,33 @@ from ..utils.weclock import WeClockExport
 import time
 
 upload_parser = ns.parser()
-upload_parser.add_argument('file', 
+upload_parser.add_argument('files', 
                            location = 'files',
                            type = FileStorage,
-                           required = True,
-                           action = 'append')
+                           action = 'append',
+                           required = True)
+upload_parser.add_argument('identifiers', 
+                           type = str,
+                           required = True)
 upload_parser.add_argument('email', 
                            type = str,
                            required = True)
+upload_parser.add_argument('to_google_sheet', 
+                           type = bool,
+                           required = False)
 
-
-@ns.route('/upload/')
+@ns.route('/upload')
 @ns.expect(upload_parser)
 class Upload(Resource):
     def post(self):
         args = upload_parser.parse_args()
-        uploaded_files = args['file']
+        print("recieved upload:", args)
+        uploaded_files = args['files']
+        identifiers = args['identifiers'].split("|")
         email = args['email']
-        print("File and email:", uploaded_files, email)
 
-        exports = [WeClockExport(f) for f in uploaded_files]
-        #TODO: Create google sheets for each export
+        # exports = [WeClockExport(f) for f in uploaded_files]
+        # #TODO: Create google sheets for each export
         
         # wb_info = wc.to_google_sheet()
         # wc.share_sheet('dcalacci@media.mit.edu')
