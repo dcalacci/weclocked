@@ -1,6 +1,6 @@
 import { createResource, createSignal, Match, Switch } from "solid-js";
 import axios, { AxiosError } from "axios";
-import { WeClockExport } from "../weclock/export";
+import { UploadData, WeClockExport } from "../weclock/export";
 import { ProgressSpinner } from "../components";
 
 export default (props: {
@@ -59,7 +59,7 @@ export default (props: {
         }
       );
       if (response.data.wb_info) {
-        console.log("response data:", response.data)
+        console.log("response data:", response.data);
         return response.data;
       }
     } catch (err) {
@@ -81,7 +81,6 @@ export default (props: {
 
   return (
     <Switch>
-
       <Match when={props.exports.length >= 1}>
         <p
           onClick={() =>

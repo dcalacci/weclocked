@@ -8,6 +8,25 @@ export interface JSONWeClockExport {
   fileNames: string[];
 }
 
+export type UploadData = {
+  wb_info: { url: string };
+  upload: string;
+  message: string;
+  data: [
+    {
+      identifier: string;
+      records: {
+        datetime: string;
+        lat: number;
+        lng: number;
+        type: string;
+      };
+    }
+  ];
+};
+
+
+
 // represents a collection of file exports from a single WeClock user
 export class WeClockExport {
   identifier: string; // identifier for this user/worker/etc
