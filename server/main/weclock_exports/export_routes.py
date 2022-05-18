@@ -1,12 +1,8 @@
 from flask_restx import Resource
-from flask import request
 from . import weclock_exports_ns as ns
 from werkzeug.datastructures import FileStorage
 from ..utils.weclock import WeClockExport
 
-from flask_cors import cross_origin
-
-import time
 
 upload_parser = ns.parser()
 upload_parser.add_argument(
@@ -60,11 +56,21 @@ class Upload(Resource):
                 WeClockExport(identifier, files_by_identifier[identifier][0])
             )
 
-        data_payload = []
+        cluster_payload = []
+        geo_payload = []
 
         for weclock_export in weclock_exports:
             # get the clusters
             cluster_df = weclock_export.get_clusters()
+            if len(cluster_df) == 0:
+                cluster_payload.append(
+                    {
+                        "identifier": weclock_export.identifier,
+                        "records": [],
+                        "avgLoc": None
+                    }
+                )
+                continue
             formatted_df = cluster_df.assign(
                 datetime=lambda x: x.datetime.astype("str"),
                 leaving_datetime=lambda x: x.leaving_datetime.astype("str"),
@@ -72,13 +78,24 @@ class Upload(Resource):
 
             avg = cluster_df[["lng", "lat"]].mean().to_dict()
 
-            data_payload.append(
+            cluster_payload.append(
                 {
                     "identifier": weclock_export.identifier,
                     "records": formatted_df.to_dict(orient="records"),
                     "avgLoc": avg,
                 }
             )
+
+            # get all locations
+            gdf = weclock_export.geo_df().assign(
+                datetime=lambda x: x.datetime.astype("str"),
+            )
+
+            geo_payload.append(
+                {
+                    "identifier": weclock_export.identifier,
+                    "records": gdf.to_dict(orient="records"),
+               })
 
         # TODO: should be one google sheet, right?
         # payload = {
@@ -94,7 +111,7 @@ class Upload(Resource):
         return {
             "wb_info": wb_info,
             "upload": "complete",
-            "data": data_payload,
+            "data": { "clusters": cluster_payload, "all_locations": geo_payload },
             "message": "Files uploaded.",
         }, 201
 

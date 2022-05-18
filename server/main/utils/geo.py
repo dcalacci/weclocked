@@ -1,6 +1,7 @@
 import numpy as np
-from skmob import TrajDataFrame
 from sklearn.cluster import DBSCAN
+
+from skmob import TrajDataFrame
 
 kms_per_radian = 6371.0088
 
@@ -19,6 +20,7 @@ def get_trips(
         spatial_radius_km=1.0,
         no_data_for_minutes=no_data_for_minutes,
     )
+
 
     sdf = pd.concat(
         [
