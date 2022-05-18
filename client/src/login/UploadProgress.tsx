@@ -7,9 +7,11 @@ import {
   Switch,
 } from "solid-js";
 import axios, { AxiosError } from "axios";
-import { UploadData, WeClockExport } from "../weclock/export";
+import { Cluster, Stop, UploadData, WeClockExport } from "../weclock/export";
 import { ProgressSpinner } from "../components";
 import { useExports } from "../weclock/ExportProvider";
+import haversine from 'haversine-distance'
+import _ from "lodash";
 
 export default (props: {
   exports: WeClockExport[];
@@ -23,7 +25,7 @@ export default (props: {
     email: string;
   }>({ exports: [], email: "" });
 
-  const [exportState, { setStops, setStore }] = useExports();
+  const [exportState, { setStore }] = useExports();
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
@@ -96,6 +98,39 @@ export default (props: {
         props.onUploaded();
         setStore('locs', d.data.all_locations);
         setStore('stops', d.data.clusters);
+
+        // post-process and set cluster data
+        let allStops = d.data.clusters // confusing but this is stops
+        let clusterData: Cluster[] = []
+        allStops.forEach((s) => {
+          let stops = s.records
+          let clusterGroups = _.groupBy(stops, "clusterID");
+          delete clusterGroups['-1'] // remove "noise" cluster
+          let avgPoints: { cluster: string; lng: number; lat: number }[] = [];
+          console.log("processing clusters:", clusterGroups)
+
+          // render clusters as blue circles
+          _.forIn(clusterGroups, (stops: Stop[], cluster: string) => {
+            let lng = _.mean(stops.map((s) => s.lng));
+            let lat = _.mean(stops.map((s) => s.lat));
+            let timesInCluster = stops.map((s) => [new Date(s.datetime), new Date(s.leaving_datetime)])
+            let totalTime = _.sum(_.map(timesInCluster, (([start, end]: Date[][]) => Math.abs(end - start) / 36e5)))
+            let avgDist = _.mean(_.map(stops, (p) => (haversine({ lng, lat }, p))))
+
+            clusterData.push({
+              id: parseInt(cluster),
+              identifier: s.identifier,
+              avgDist,
+              centroid: { lng, lat },
+              label: cluster,
+              nStops: stops.length,
+              totalTime,
+              timesInCluster
+            })
+          });
+        })
+        setStore('clusters', clusterData)
+
       }
     })
   );
@@ -184,3 +219,5 @@ export default (props: {
     </Switch>
   );
 };
+
+

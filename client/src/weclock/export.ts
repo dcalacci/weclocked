@@ -19,6 +19,17 @@ export type Stop = {
   clusterID: number;
 };
 
+export type Cluster = {
+  id: number;
+  identifier: string;
+  centroid: Point;
+  label: string;
+  avgDist: number;
+  nStops: number;
+  totalTime: number
+  timesInCluster: Date[][]
+}
+
 export type Stops = {
   identifier: string;
   avgLoc: Point;
@@ -28,6 +39,11 @@ export type Stops = {
 export type Locs = {
   identifier: string,
   records: Point[]
+}
+
+export type Clusters = {
+  identifier: string,
+  records: Cluster[]
 }
 
 
@@ -47,6 +63,7 @@ export class WeClockExport {
   notes: string; // text notes on this export
   locs: Point[];
   stops: Stop[];
+  clusters: Cluster[];
   avgLoc: Point;
 
   //TODO: Expand as we need additional context or information from exports
@@ -56,6 +73,7 @@ export class WeClockExport {
     notes: string = "",
     locs?: Point[],
     stops?: Stop[],
+    clusters?: Cluster[],
     avgLoc?: Point
   ) {
     this.identifier = identifier;
@@ -63,6 +81,7 @@ export class WeClockExport {
     this.notes = notes;
     this.locs = locs || [];
     this.stops = stops || [];
+    this.clusters = clusters || [];
     this.avgLoc = avgLoc || { lat: 45, lng: -71 }
   }
 

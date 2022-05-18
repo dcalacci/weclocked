@@ -3,7 +3,7 @@ import type { Component } from "solid-js";
 import { Store } from "solid-js/store";
 import { createLocalStore } from "../store";
 
-import { Stops, Locs, WeClockExport } from "./export";
+import { Stops, Locs, WeClockExport, Cluster } from "./export";
 import { STORAGE_CONSTANTS } from "../constants";
 
 export type ExportState = Store<{
@@ -11,6 +11,7 @@ export type ExportState = Store<{
   currentExportIndex: number;
   email: string;
   stops: Stops[];
+  clusters: Cluster[];
   locs: Locs[];
 }>;
 
@@ -45,7 +46,8 @@ const ExportsProvider: Component = (props) => {
       currentExportIndex: 0,
       email: "",
       stops: [],
-      locs: []
+      locs: [],
+      clusters: [],
     },
     STORAGE_CONSTANTS.EXPORTS_STORAGE_KEY
   );
