@@ -135,6 +135,7 @@ const FileList = () => {
           </div>
           <div class="flex flex-col px-2 pt-2 md:px-5 md:w-1/2">
             <h1 class="text-xl font-semibold">Hours Worked</h1>
+            <HourStats participantID={selectedParticipant()} />
           </div>
         </div>
       </div>
@@ -142,9 +143,28 @@ const FileList = () => {
   );
 };
 
-const LabelScreen = () => {
-  const [exportState, { setExportFiles }] = useExports();
-  const [participantID, setParticipantID] = createSignal(exportState.exports[0].identifier)
+const HourStats = (props: { participantID: string }) => {
+  const [exportState, { setStore, setExportFiles }] = useExports();
+
+  const clusters = createMemo(() => {
+    return exportState.clusters.filter((c) => c.identifier == props.participantID) || []
+  })
+
+  const hoursWorked = createMemo(() => {
+    let clusterGroups = _.groupBy(clusters(), 'label')
+    console.log("cluster groups:", clusterGroups)
+    let timeInLabel = _.mapValues(clusterGroups, (v) => {
+      return _.sum(_.map(v, (c) => c.totalTime))
+    })
+    return timeInLabel
+  })
+
+  return (
+    <div>
+      <p>Time in work: {hoursWorked().work ? hoursWorked().work.toFixed(1) : '?'}h</p>
+      <p>Time at home: {hoursWorked().home ? hoursWorked().home.toFixed(1) : '?'}h</p>
+    </div>
+  )
 }
 
 const ParticipantSelector = (props: { participants: string[], onSelectParticipant: (p: string) => void }) => {
