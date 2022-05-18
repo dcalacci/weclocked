@@ -23,7 +23,7 @@ export default (props: {
     email: string;
   }>({ exports: [], email: "" });
 
-  const [exportState, { setStops }] = useExports();
+  const [exportState, { setStops, setStore }] = useExports();
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
@@ -93,8 +93,10 @@ export default (props: {
   createEffect(
     on(data, (d) => {
       if (d) {
+        console.log("got data")
         props.onUploaded();
-        setStops(d.data);
+        setStore('stops', d.data);
+        // setStore('avgLoc', d.avgLoc);
       }
     })
   );

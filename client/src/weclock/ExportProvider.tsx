@@ -1,17 +1,16 @@
-import { createContext, mergeProps, useContext } from "solid-js";
+import { createContext, useContext } from "solid-js";
 import type { Component } from "solid-js";
-import { produce, createStore, Store } from "solid-js/store";
+import { Store } from "solid-js/store";
 import { createLocalStore } from "../store";
 
 import { Stops, WeClockExport } from "./export";
 import { STORAGE_CONSTANTS } from "../constants";
 
-
 export type ExportState = Store<{
   exports: WeClockExport[];
   currentExportIndex: number;
   email: string;
-  stops: Stops[]
+  stops: Stops[];
 }>;
 
 export type ExportActions = {
@@ -26,7 +25,7 @@ export type ExportActions = {
   setCurrentNotes: (notes: string) => void;
   updateExportId: (idx: number, newId: string) => void;
   clearExports: () => void;
-  setStops: (stops: Stops[]) => void
+  setStore: (...args: any) => any;
 };
 
 const ExportsContext = createContext<[ExportState, ExportActions]>();
@@ -44,7 +43,7 @@ const ExportsProvider: Component = (props) => {
       exports: [new WeClockExport([], "Participant 1", "")] as WeClockExport[],
       currentExportIndex: 0,
       email: "",
-      stops: []
+      stops: [],
     },
     STORAGE_CONSTANTS.EXPORTS_STORAGE_KEY
   );
@@ -54,8 +53,10 @@ const ExportsProvider: Component = (props) => {
     // but that makes no sense. Should be fine.
     state,
     {
-      setStops: (stops: Stops[]) => {
-        setState('stops', stops)
+      // trying t omake this more generalizable
+      setStore: (...args) => {
+        //@ts-ignore
+        setState(...args);
       },
       clearExports: () => {
         setState("exports", [

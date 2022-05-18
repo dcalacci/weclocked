@@ -16,6 +16,7 @@ upload_parser.add_argument("identifiers", type=str, required=True)
 upload_parser.add_argument("email", type=str, required=True)
 upload_parser.add_argument("to_google_sheet", type=bool, required=False)
 
+
 @ns.route("/upload")
 @ns.expect(upload_parser)
 class Upload(Resource):
@@ -66,13 +67,16 @@ class Upload(Resource):
             cluster_df = weclock_export.get_clusters()
             formatted_df = cluster_df.assign(
                 datetime=lambda x: x.datetime.astype("str"),
-                leaving_datetime=lambda x: x.leaving_datetime.astype("str")
+                leaving_datetime=lambda x: x.leaving_datetime.astype("str"),
             )
+
+            avg = cluster_df[["lng", "lat"]].mean().to_dict()
 
             data_payload.append(
                 {
                     "identifier": weclock_export.identifier,
                     "records": formatted_df.to_dict(orient="records"),
+                    "avgLoc": avg,
                 }
             )
 
