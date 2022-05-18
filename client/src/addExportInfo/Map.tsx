@@ -37,8 +37,6 @@ const Map = (props:
 
   const showMap = createMemo(() => props.stops && props.locs && (props.stops.records.length > 0 || props.locs.records.length > 0))
 
-  const [popups, setPopups] = createSignal<Popup[]>([])
-
   createEffect(() => {
     let clusterID = props.selectedCluster
     console.log("selected cluster:", clusterID)
@@ -54,20 +52,10 @@ const Map = (props:
     }
   })
 
-  // createEffect(on(() => props.selectedParticipant, () => {
-  //   layerGroup.clearLayers()
-  // }))
-
-
   createEffect(() => {
     console.log("Mounting map component...")
     let mapLoc = unwrap(props.stops) ? unwrap(props.stops).avgLoc : { lat: 45, lng: -71 }
-    // if (map != undefined) {
-    //   map.remove()
-    //   map = undefined;
-    // }
     if (!map && showMap()) map = buildMap({ mapDiv, startLocation: mapLoc });
-
 
     let locs = unwrap(props.locs);
     let locLayer: Layer[] = []
@@ -99,9 +87,6 @@ const Map = (props:
           'other': '#38BDF8'
         }
         let color = _.get(colors, c.label, "#38BDF8")
-        // if (props.selectedCluster && c.id != props.selectedCluster) {
-        //   color = "#A3A3A3"
-        // }
         clusterLayer.push(L.circle([c.centroid.lat, c.centroid.lng],
           {
             radius: _.max([c.avgDist, minClusterRadius]),
