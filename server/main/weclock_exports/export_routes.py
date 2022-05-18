@@ -70,6 +70,12 @@ class Upload(Resource):
                         "avgLoc": None
                     }
                 )
+                geo_payload.append(
+                    {
+                        "identifier": weclock_export.identifier,
+                        "records": []
+                    }
+                )
                 continue
             formatted_df = cluster_df.assign(
                 datetime=lambda x: x.datetime.astype("str"),

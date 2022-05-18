@@ -93,10 +93,9 @@ export default (props: {
   createEffect(
     on(data, (d) => {
       if (d) {
-        console.log("got data")
         props.onUploaded();
-        setStore('stops', d.data);
-        // setStore('avgLoc', d.avgLoc);
+        setStore('locs', d.data.all_locations);
+        setStore('stops', d.data.clusters);
       }
     })
   );
