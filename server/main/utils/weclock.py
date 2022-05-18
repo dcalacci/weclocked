@@ -29,10 +29,11 @@ class WeClockExport:
             )
         return geodf
 
-    def get_clusters(self, cluster_radius=1., min_stops=2) -> TrajDataFrame:
+    # use .2 because it seems to work well heuristically. Can change in client if needed
+    def get_clusters(self, cluster_radius=.2, min_stops=2) -> TrajDataFrame:
         from . import geo
         # uses geo.cluster_stops to get a Data Frame with a new column for clusters
-        trajectorie, sdf, stop_df = geo.get_trips(self.geo_df())
+        trajectories, sdf, stop_df = geo.get_trips(self.geo_df())
         return geo.cluster_stops(stop_df, cluster_radius, min_stops)
 
 

@@ -36,9 +36,9 @@ const Map = (props: { stops: Stops }) => {
     let stops = unwrap(props.stops);
     stops.records.forEach((r: Stop) => {
       console.log("Adding marker:", r);
-      L.circle([r.lat, r.lng], { radius: 100 })
+      L.circle([r.lat, r.lng], { radius: 100, color: 'gray' })
         .addTo(map)
-        .bindPopup("A pretty CSS3 popup.<br> Easily customizable.");
+        .bindPopup(`Stopped here at ${r.datetime} to ${r.leaving_datetime}`);
     });
     let clusterGroups = _.groupBy(stops.records, "clusterID");
     delete clusterGroups['-1'] // remove "noise" cluster
@@ -54,7 +54,9 @@ const Map = (props: { stops: Stops }) => {
       let points = clusterGroups[cluster]
       let avgDist = _.mean(_.map(points, (p) => (haversine({ lng, lat }, p))))
       console.log("Adding cluster average markers:", cluster, lng, lat);
-      L.circle([lat, lng], { radius: _.max([avgDist, minClusterRadius]) }).addTo(map).bindPopup(`Cluster ${cluster}`);
+      L.circle([lat, lng], { radius: _.max([avgDist, minClusterRadius]) })
+        .addTo(map)
+        .bindPopup(`Cluster ${cluster}. \n Stopped here ${points.length} times.`);
     });
 
   })
