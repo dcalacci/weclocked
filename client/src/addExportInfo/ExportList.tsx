@@ -44,7 +44,7 @@ const FileList = () => {
   })
 
   const clusters = createMemo(() => {
-    return _.filter(exportState.clusters, (s) => s.identifier == selectedParticipant() || [])
+    return exportState.clusters.filter((c) => c.identifier == selectedParticipant()) || []
   })
 
   const locs = createMemo(() => {
@@ -65,12 +65,6 @@ const FileList = () => {
     )
   }
 
-
-  const viewCluster = (c: Cluster) => {
-
-  }
-
-
   //TODO: change button highlight on label change
   return (
     <div class="flex-col content-center justify-center w-full">
@@ -80,6 +74,7 @@ const FileList = () => {
         locs={locs() as Locs}
         clusters={clusters() as Cluster[]}
         selectedCluster={selectedCluster()}
+        selectedParticipant={selectedParticipant()}
       />
       <div class="flex flex-row flex-wrap">
         <div class="flex flex-col w-full md:w-1/3">
@@ -92,7 +87,15 @@ const FileList = () => {
           </div>
 
           <div class={`flex flex-col overflow-y-scroll px-2 pt-2 h-1/3 md:h-full border-black border-t-2 border-b-2 shadow-md`}>
-            <h1 class="text-xl font-semibold">Clusters</h1>
+            <div class="flex flex-row items-center justify-between">
+              <h1 class="text-xl font-semibold">Clusters</h1>
+              <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
+                onClick={() => selectCluster(null)}
+              >
+                <HiSolidEye class="h-5 w-5 mx-1" />
+                Reset View
+              </button>
+            </div>
             <For each={clusters() as Cluster[]}>
               {(c, i) => (
                 <div
