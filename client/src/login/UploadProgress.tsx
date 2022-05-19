@@ -7,9 +7,11 @@ import {
   Switch,
 } from "solid-js";
 import axios, { AxiosError } from "axios";
-import { UploadData, WeClockExport } from "../weclock/export";
+import { Cluster, Stop, UploadData, WeClockExport } from "../weclock/export";
 import { ProgressSpinner } from "../components";
 import { useExports } from "../weclock/ExportProvider";
+import haversine from 'haversine-distance'
+import _ from "lodash";
 
 export default (props: {
   exports: WeClockExport[];
@@ -23,10 +25,11 @@ export default (props: {
     email: string;
   }>({ exports: [], email: "" });
 
-  const [exportState, { setStops }] = useExports();
+  const [exportState, { setStore }] = useExports();
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
+    console.log("upload progress:", event, percentage)
     setUploadPercent(percentage);
   };
 
@@ -57,10 +60,12 @@ export default (props: {
     });
     formData.append("identifiers", identifiers.join("|"));
     formData.append("email", email);
+
+    console.log("sending exports...")
     try {
       //TODO: change to server URL
       const response = await axios.post(
-        "http://localhost:5000/exports/upload",
+        "https://weclocked.witchy.business/exports/upload",
         formData,
         {
           headers: {
@@ -69,9 +74,8 @@ export default (props: {
           onUploadProgress,
         }
       );
-      if (response.data.wb_info) {
-        return response.data;
-      }
+      console.log("response data:", response.data)
+      return response.data
     } catch (err) {
       const errors = err as Error | AxiosError;
       if (axios.isAxiosError(errors)) {
@@ -92,9 +96,47 @@ export default (props: {
 
   createEffect(
     on(data, (d) => {
-      if (d) {
+
+      if (d && d.data) {
         props.onUploaded();
-        setStops(d.data);
+        setStore('locs', d.data.all_locations);
+        setStore('stops', d.data.clusters);
+
+        // post-process and set cluster data
+        let allStops = d.data.clusters // confusing but this is stops
+        let clusterData: Cluster[] = []
+        allStops.forEach((s) => {
+          let stops = s.records
+          let clusterGroups = _.groupBy(stops, "clusterID");
+          delete clusterGroups['-1'] // remove "noise" cluster
+          let avgPoints: { cluster: string; lng: number; lat: number }[] = [];
+          console.log("processing clusters:", clusterGroups)
+
+          // render clusters as blue circles
+          _.forIn(clusterGroups, (stops: Stop[], cluster: string) => {
+            let lng = _.mean(stops.map((s) => s.lng));
+            let lat = _.mean(stops.map((s) => s.lat));
+            let timesInCluster = stops.map((s) => [new Date(s.datetime), new Date(s.leaving_datetime)])
+            let totalTime = _.sum(_.map(timesInCluster, (([start, end]: Date[][]) => Math.abs(end - start) / 36e5)))
+            let avgDist = _.mean(_.map(stops, (p) => (haversine({ lng, lat }, p))))
+
+            clusterData.push({
+              id: parseInt(cluster),
+              identifier: s.identifier,
+              avgDist,
+              centroid: { lng, lat },
+              label: cluster,
+              nStops: stops.length,
+              totalTime,
+              timesInCluster
+            })
+          });
+        })
+        // sort in ascending "total time"
+        let sortedClusterData = _.reverse(_.sortBy(clusterData, ['identifier', 'totalTime']))
+        sortedClusterData = _.map(sortedClusterData, (c, i) => ({ ...c, id: i }))
+        setStore('clusters', sortedClusterData)
+
       }
     })
   );
@@ -183,3 +225,5 @@ export default (props: {
     </Switch>
   );
 };
+
+

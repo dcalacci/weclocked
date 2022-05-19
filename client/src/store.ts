@@ -29,6 +29,7 @@ function createLocalStore<T>(
     if (v) {
       //@ts-ignore
       let val = v[storageKey];
+      console.log("Setting storage from database:", val)
       setState(val);
     }
   });
@@ -41,7 +42,10 @@ function createLocalStore<T>(
     setStore(...args);
   };
 
-  createEffect(on(triggerUpdate, () => storage.set(storageKey, unwrap(state))));
+  createEffect(on(triggerUpdate, () => {
+    console.log("Saving state to storage:", unwrap(state))
+    storage.set(storageKey, unwrap(state))
+  }));
 
   return [state, setState];
 }

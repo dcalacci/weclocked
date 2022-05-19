@@ -26,13 +26,16 @@ class WeClockExport:
             .drop(['idx'], axis=1)
             .rename(columns={'value1': "lat", "value2": "lng", "date_time": "datetime"})
             .assign(datetime = lambda x: pd.to_datetime(x.datetime))
-            )
+            ).dropna()
         return geodf
 
-    def get_clusters(self, cluster_radius=1., min_stops=2) -> TrajDataFrame:
+    # use .2 because it seems to work well heuristically. Can change in client if needed
+    def get_clusters(self, cluster_radius=.1, min_stops=2) -> TrajDataFrame or None:
         from . import geo
         # uses geo.cluster_stops to get a Data Frame with a new column for clusters
-        trajectorie, sdf, stop_df = geo.get_trips(self.geo_df())
+        if (len(self.geo_df()) < 5):
+            return TrajDataFrame(pd.DataFrame()) 
+        trajectories, sdf, stop_df = geo.get_trips(self.geo_df())
         return geo.cluster_stops(stop_df, cluster_radius, min_stops)
 
 
