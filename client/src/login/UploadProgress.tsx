@@ -29,6 +29,7 @@ export default (props: {
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
+    console.log("upload progress:", event, percentage)
     setUploadPercent(percentage);
   };
 
@@ -59,6 +60,8 @@ export default (props: {
     });
     formData.append("identifiers", identifiers.join("|"));
     formData.append("email", email);
+
+    console.log("sending exports...")
     try {
       //TODO: change to server URL
       const response = await axios.post(
@@ -71,9 +74,8 @@ export default (props: {
           onUploadProgress,
         }
       );
-      if (response.data.wb_info) {
-        return response.data;
-      }
+      console.log("response data:", response.data)
+      return response.data
     } catch (err) {
       const errors = err as Error | AxiosError;
       if (axios.isAxiosError(errors)) {
@@ -94,7 +96,8 @@ export default (props: {
 
   createEffect(
     on(data, (d) => {
-      if (d) {
+
+      if (d && d.data) {
         props.onUploaded();
         setStore('locs', d.data.all_locations);
         setStore('stops', d.data.clusters);
@@ -129,7 +132,10 @@ export default (props: {
             })
           });
         })
-        setStore('clusters', clusterData)
+        // sort in ascending "total time"
+        let sortedClusterData = _.reverse(_.sortBy(clusterData, ['identifier', 'totalTime']))
+        sortedClusterData = _.map(sortedClusterData, (c, i) => ({ ...c, id: i }))
+        setStore('clusters', sortedClusterData)
 
       }
     })

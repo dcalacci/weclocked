@@ -1,36 +1,21 @@
 import { createEffect, createMemo, Match, on, onMount, Show, Switch } from "solid-js";
+import { Chart } from 'chart.js'
 
 import { For } from "solid-js";
 import { createSignal, createSelector } from "solid-js";
 import { unwrap } from "solid-js/store";
-import { useExports, ExportsContext } from "../weclock/ExportProvider";
+import { useExports } from "../weclock/ExportProvider";
 
-import { Cluster, Locs, Point, Stop, Stops, WeClockExport } from "../weclock/export";
+import { Cluster, Locs, Stops } from "../weclock/export";
 
-import { HiSolidChevronDown, HiSolidDotsCircleHorizontal, HiSolidEye, HiSolidPencilAlt } from 'solid-icons/hi'
+import { HiOutlineCalendar, HiSolidEye } from 'solid-icons/hi'
+import { SolidApexCharts } from 'solid-apexcharts';
 
 import Map from "./Map";
 import _ from "lodash";
+import flatpickr from "flatpickr";
 
-const FileItem = (props: { children?: Element; fileId: string }) => {
-  const [identifier, setIdentifier] = createSignal<string>("");
-
-  // <For each={exportState.exports as WeClockExport[]}>
-  //   {(ex: WeClockExport) => <FileItem fileId={ex.identifier}></FileItem>}
-  // </For>
-
-
-  return (
-    <div class="flex-row justify-center border-4 border-black p-5 m-3">
-      <div class="flex-col">
-        <p> Export ID: {props.fileId}</p>
-        <p> Identifier: {identifier}</p>
-      </div>
-    </div>
-  );
-};
-
-const FileList = () => {
+const Labeler = () => {
   const [exportState, { setStore, setExportFiles }] = useExports();
   const [selectedParticipant, setSelectedParticipant] = createSignal<string>(exportState.exports[0].identifier)
   const [selectedCluster, selectCluster] = createSignal<number>()
@@ -51,10 +36,6 @@ const FileList = () => {
     return _.find(exportState.locs, (l) => l.identifier == selectedParticipant())
   })
 
-  onMount(() => {
-    console.log("export state:", unwrap(exportState));
-  });
-
   const labelCluster = (id: number, label: string) => {
     console.log("labeling cluster ", id, label)
     setStore(
@@ -64,10 +45,13 @@ const FileList = () => {
       label
     )
   }
+  let flatPicker: any;
+
+  const [calendarOpen, setCalendarOpen] = createSignal(false)
 
   //TODO: change button highlight on label change
   return (
-    <div class="flex-col content-center justify-center w-full">
+    <div class="flex-col content-center justify-center w-full h-screen">
 
       <Map
         stops={stops() as Stops}
@@ -76,18 +60,26 @@ const FileList = () => {
         selectedCluster={selectedCluster()}
         selectedParticipant={selectedParticipant()}
       />
-      <div class="container-full w-full flex flex-row justify-center">
+
+      <div class="container-full w-full flex flex-col justify-center">
         <div class="flex flex-row flex-wrap w-full xl:w-3/4">
           <div class="flex flex-col w-full md:w-1/2 md:px-10">
             <div class="flex flex-row content-center justify-between pt-1 px-2">
-
               <div class="flex flex-row">
                 <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
               </div>
               <ParticipantSelector participants={exportState.exports.map((e) => e.identifier)} onSelectParticipant={(p) => setSelectedParticipant(p)} />
             </div>
 
-            <div class={`flex flex-col overflow-y-scroll px-2 pt-2 h-1/3 md:h-full border-black border-t-2 border-b-2 shadow-md`}>
+            {/* <div */}
+            {/*   class="flex flex-row border-2 border-black m-2"> */}
+            {/*   <HiOutlineCalendar class="h-7 w-7 p-1" /> */}
+            {/*   <div ref={flatPicker}> */}
+            {/*   </div> */}
+            {/* </div> */}
+
+
+            <div class={`flex flex-col h-1/3 md:h-1/2 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
               <div class="flex flex-row items-center justify-between">
                 <h1 class="text-xl font-semibold">Clusters</h1>
                 <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
@@ -159,11 +151,37 @@ const HourStats = (props: { participantID: string }) => {
     return timeInLabel
   })
 
+  // let chartBarRef: any;
+  // const labels = _.keys(hoursWorked())
+  // const dataBarChart = {
+  //   labels,
+  //   datasets: [
+  //     {
+  //       label: "Hours Worked",
+  //       backgroundColor: "hsl(252, 82.9%, 67.8%)",
+  //       borderColor: "hsl(252, 82.9%, 67.8%)",
+  //       data: _.map(labels, (l) => hoursWorked[l])
+  //     },
+  //   ],
+  // };
+
+  // const configBarChart = {
+  //   type: "bar",
+  //   data: dataBarChart,
+  //   options: {},
+  // };
+
+  // var chartBar = new Chart(
+  //   chartBarRef,
+  //   configBarChart
+  // );
+
   return (
     <div>
       <p>Time in work: {hoursWorked().work ? hoursWorked().work.toFixed(1) : '?'}h</p>
       <p>Time at home: {hoursWorked().home ? hoursWorked().home.toFixed(1) : '?'}h</p>
     </div>
+
   )
 }
 
@@ -195,4 +213,4 @@ const ParticipantSelector = (props: { participants: string[], onSelectParticipan
   )
 }
 
-export { FileItem, FileList };
+export { Labeler };

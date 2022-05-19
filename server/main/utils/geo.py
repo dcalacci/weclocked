@@ -6,7 +6,7 @@ from skmob import TrajDataFrame
 kms_per_radian = 6371.0088
 
 def get_trips(
-    traj_df, min_trip_dist_mi=1.0, minutes_for_stop=5, no_data_for_minutes=60
+    traj_df, min_trip_dist_mi=1.0, minutes_for_stop=10, no_data_for_minutes=60
 ):
     from skmob.preprocessing import detection
     import pandas as pd
@@ -17,7 +17,7 @@ def get_trips(
         min_speed_kmh=20.0,
         stop_radius_factor=0.75,
         minutes_for_a_stop=minutes_for_stop,
-        spatial_radius_km=1.0,
+        spatial_radius_km=0.2,
         no_data_for_minutes=no_data_for_minutes,
     )
 

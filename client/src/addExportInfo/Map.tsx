@@ -1,7 +1,6 @@
 import "leaflet/dist/leaflet.css";
-import L, { Layer, LayerGroup, Popup } from "leaflet";
-import { createEffect, createMemo, createSignal, Match, on, onMount, Show, Switch } from "solid-js";
-import haversine from 'haversine-distance'
+import L, { Layer, LayerGroup } from "leaflet";
+import { createEffect, createMemo, Show, Switch } from "solid-js";
 import _ from "lodash";
 
 import { Cluster, Locs, Point, Stop, Stops } from "../weclock/export";
@@ -61,7 +60,7 @@ const Map = (props:
     let locLayer: Layer[] = []
     if (locs) {
       props.locs.records.forEach((p: Point) => {
-        locLayer.push(L.circle([p.lat, p.lng], { radius: 25, color: 'blue', weight: 1 })
+        locLayer.push(L.circle([p.lat, p.lng], { radius: 25, color: '#F87171', weight: 1 })
           .bindPopup(`Stopped here at ${p.datetime}`));
       });
     }
@@ -99,7 +98,7 @@ const Map = (props:
 
     if (map) {
       layerGroup.clearLayers()
-      let layers = [locLayer, clusterLayer, stopLayer].flat()
+      let layers = [stopLayer, locLayer, clusterLayer].flat()
       layerGroup = L.layerGroup(layers)
       layerGroup.addTo(map)
     }
