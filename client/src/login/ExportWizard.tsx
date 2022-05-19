@@ -208,14 +208,14 @@ const ExportWizard: Component = (props) => {
         </Show>
 
         <form class="mt-8 space-y-3" action="#" method="post">
-          <ValidatedTextField
-            text={email}
-            setText={setEmail}
-            validator={validateEmail}
-            title={UPLOAD_CONSTANTS.EMAIL_TITLE}
-            description={UPLOAD_CONSTANTS.EMAIL_DESC}
-            placeholder={"solidarity@weclock.it"}
-          />
+          {/* <ValidatedTextField */}
+          {/*   text={email} */}
+          {/*   setText={setEmail} */}
+          {/*   validator={validateEmail} */}
+          {/*   title={UPLOAD_CONSTANTS.EMAIL_TITLE} */}
+          {/*   description={UPLOAD_CONSTANTS.EMAIL_DESC} */}
+          {/*   placeholder={"solidarity@weclock.it"} */}
+          {/* /> */}
           <div class="flex flex-col space-y-2">
             <label class="text-xl font-bold text-slate-600 tracking-wide">
               {UPLOAD_CONSTANTS.UPLOAD_FORM_TITLE}
