@@ -65,7 +65,7 @@ export default (props: {
     try {
       //TODO: change to server URL
       const response = await axios.post(
-        "http://localhost:5000/exports/upload",
+        "https://weclocked.witchy.business/exports/upload",
         formData,
         {
           headers: {
