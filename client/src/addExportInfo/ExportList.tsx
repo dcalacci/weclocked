@@ -64,7 +64,7 @@ const Labeler = () => {
       <div class="container-full w-full flex flex-col justify-center">
         <div class="flex flex-row flex-wrap w-full xl:w-3/4">
           <div class="flex flex-col w-full md:w-1/2 md:px-10">
-            <div class="flex flex-row content-center justify-between pt-1 px-2">
+            <div class="flex flex-row border-black border-b-2 content-center justify-between pt-1 px-2">
               <div class="flex flex-row">
                 <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
               </div>
@@ -77,9 +77,13 @@ const Labeler = () => {
             {/*   <div ref={flatPicker}> */}
             {/*   </div> */}
             {/* </div> */}
+            <div class="flex flex-col px-2 pt-2 md:px-5 md:w-1/2">
+              <HourStats participantID={selectedParticipant()} />
+            </div>
 
 
-            <div class={`flex flex-col h-1/3 md:h-2/3 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
+
+            <div class={`flex flex-col h-1/2 md:h-2/3 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
               <div class="flex flex-row items-center justify-between">
                 <h1 class="text-xl font-semibold">Clusters</h1>
                 <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
@@ -124,10 +128,6 @@ const Labeler = () => {
                 )}
               </For>
             </div>
-          </div>
-          <div class="flex flex-col px-2 pt-2 md:px-5 md:w-1/2">
-            <h1 class="text-xl font-semibold">Hours Worked</h1>
-            <HourStats participantID={selectedParticipant()} />
           </div>
         </div>
       </div>
@@ -177,9 +177,19 @@ const HourStats = (props: { participantID: string }) => {
   // );
 
   return (
-    <div>
-      <p>Time in work: {hoursWorked().work ? hoursWorked().work.toFixed(1) : '?'}h</p>
-      <p>Time at home: {hoursWorked().home ? hoursWorked().home.toFixed(1) : '?'}h</p>
+    <div class="flex flex-row justify-around w-full">
+      <div class="flex flex-col items-center">
+        <p class='font-bold'>{hoursWorked().work ? hoursWorked().work.toFixed(1) + 'h' : '?'}</p>
+        <p class="flex text-sm">Work</p>
+      </div>
+      <div class="flex flex-col items-center">
+        <p class='font-bold'>{hoursWorked().home ? hoursWorked().home.toFixed(1) + 'h' : '?'}</p>
+        <p class="flex text-sm">Home</p>
+      </div>
+      <div class="flex flex-col items-center">
+        <p class='font-bold'>{hoursWorked().other ? hoursWorked().other.toFixed(1) + 'h' : '?'}</p>
+        <p class="flex text-sm">Other</p>
+      </div>
     </div>
 
   )
