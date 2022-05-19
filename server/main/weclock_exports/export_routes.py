@@ -1,4 +1,5 @@
 from flask_restx import Resource
+from flask import jsonify
 from . import weclock_exports_ns as ns
 from werkzeug.datastructures import FileStorage
 from ..utils.weclock import WeClockExport
@@ -13,6 +14,7 @@ upload_parser.add_argument("email", type=str, required=True)
 upload_parser.add_argument("to_google_sheet", type=bool, required=False)
 
 
+# @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 @ns.route("/upload")
 @ns.expect(upload_parser)
 class Upload(Resource):
@@ -95,7 +97,7 @@ class Upload(Resource):
             # get all locations
             gdf = weclock_export.geo_df().assign(
                 datetime=lambda x: x.datetime.astype("str"),
-            )
+            ).dropna()
 
             geo_payload.append(
                 {
@@ -114,12 +116,16 @@ class Upload(Resource):
         #         payload['urls'].append(wb_info)
 
         wb_info = {"url": "fake-url"}
-        return {
+        d = {
             "wb_info": wb_info,
             "upload": "complete",
             "data": { "clusters": cluster_payload, "all_locations": geo_payload },
             "message": "Files uploaded.",
-        }, 201
+        }
+        # response = jsonify(d)
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        # return response
+        return d, 201
 
     def get(self):
         return "Hi!!!"
