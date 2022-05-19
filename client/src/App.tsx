@@ -18,13 +18,13 @@ const App: Component = () => {
           </div>
 
           <div class="flex flex-grow items-center justify-end space-x-4 px-6">
-            <a href="/upload" class="text-l text-slate-500 font-semibold hover:text-slate-700">Upload</a>
+            <a href="/" class="text-l text-slate-500 font-semibold hover:text-slate-700">Upload</a>
             <a href="/label" class="text-l text-slate-500 font-semibold hover:text-slate-700">Label</a>
 
           </div>
         </nav>
         <Routes>
-          <Route path='/upload' element={<ExportWizard />} />
+          <Route path='/' element={<ExportWizard />} />
           <Route path='/label' element={<Labeler />} />
         </Routes>
       </div>
