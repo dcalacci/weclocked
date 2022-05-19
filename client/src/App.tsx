@@ -4,7 +4,7 @@ import { Routes, Route } from 'solid-app-router'
 // import type { StoreNode, Store, SetStoreFunction } from "solid-js/store";
 
 import ExportWizard from './login/ExportWizard'
-import { FileList } from './addExportInfo/ExportList'
+import { Labeler } from './addExportInfo/ExportList'
 
 import { ExportsProvider } from './weclock/ExportProvider'
 
@@ -21,11 +21,11 @@ const App: Component = () => {
             <a href="/upload" class="text-l text-slate-500 font-semibold hover:text-slate-700">Upload</a>
             <a href="/label" class="text-l text-slate-500 font-semibold hover:text-slate-700">Label</a>
 
-            </div>
+          </div>
         </nav>
         <Routes>
-          <Route path='/upload' element={<ExportWizard/>} />
-          <Route path='/label' element={<FileList/>} />
+          <Route path='/upload' element={<ExportWizard />} />
+          <Route path='/label' element={<Labeler />} />
         </Routes>
       </div>
     </ExportsProvider>
