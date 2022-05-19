@@ -65,6 +65,7 @@ export default (props: {
     try {
       //TODO: change to server URL
       const response = await axios.post(
+        // "http://localhost:5000/exports/upload",
         "https://weclocked.witchy.business/exports/upload",
         formData,
         {
@@ -116,7 +117,13 @@ export default (props: {
           _.forIn(clusterGroups, (stops: Stop[], cluster: string) => {
             let lng = _.mean(stops.map((s) => s.lng));
             let lat = _.mean(stops.map((s) => s.lat));
-            let timesInCluster = stops.map((s) => [new Date(s.datetime), new Date(s.leaving_datetime)])
+            let timesInCluster = stops.map((s) => {
+              // for safari, see https://stackoverflow.com/questions/4310953/invalid-date-in-safari
+              return [
+                new Date(s.datetime.replace(/-/g, "/")),
+                new Date(s.leaving_datetime.replace(/-/g, "/"))]
+            })
+            console.log("times in cluster:", timesInCluster)
             let totalTime = _.sum(_.map(timesInCluster, (([start, end]: Date[][]) => Math.abs(end - start) / 36e5)))
             let avgDist = _.mean(_.map(stops, (p) => (haversine({ lng, lat }, p))))
 
