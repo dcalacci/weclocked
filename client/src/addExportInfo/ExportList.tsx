@@ -79,7 +79,7 @@ const Labeler = () => {
             {/* </div> */}
 
 
-            <div class={`flex flex-col h-1/3 md:h-1/2 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
+            <div class={`flex flex-col h-1/3 md:h-2/3 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
               <div class="flex flex-row items-center justify-between">
                 <h1 class="text-xl font-semibold">Clusters</h1>
                 <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
