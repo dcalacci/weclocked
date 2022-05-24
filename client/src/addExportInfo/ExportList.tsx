@@ -22,6 +22,7 @@ const Labeler = () => {
 
   createEffect(on(selectedParticipant, (p: string) => {
     let exp = _.find(exportState.exports, (e) => e.identifier == p)
+    selectCluster(0)
   }))
 
   const stops = createMemo(() => {
