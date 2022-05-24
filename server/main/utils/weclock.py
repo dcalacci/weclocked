@@ -9,8 +9,8 @@ class WeClockExport:
     def __init__(self, identifier, filename_or_file):
         self.identifier = identifier
         self.filename_or_file = filename_or_file
-        self.df = self.parse_export_file(self.filename_or_file)
         self.type = "android"
+        self.df = self.parse_export_file(self.filename_or_file)
 
     def parse_export_file(self, filename_or_file) -> pd.DataFrame:
         # if it's a .zip, it's an android export and needs to be treated differently.
