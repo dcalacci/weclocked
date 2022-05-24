@@ -51,9 +51,10 @@ const Labeler = () => {
 
   //TODO: change button highlight on label change
   return (
-    <div class="flex-col content-center justify-center w-full h-screen">
+    <div class="flex-col content-center justify-center w-full h-full">
 
       <Map
+        class="h-1/3"
         stops={stops() as Stops}
         locs={locs() as Locs}
         clusters={clusters() as Cluster[]}
@@ -61,77 +62,77 @@ const Labeler = () => {
         selectedParticipant={selectedParticipant()}
       />
 
-      <div class="container-full w-full flex flex-col justify-center">
-        <div class="flex flex-row flex-wrap w-full xl:w-3/4">
-          <div class="flex flex-col w-full md:w-1/2 md:px-10">
-            <div class="flex flex-row border-black border-b-2 content-center justify-between pt-1 px-2">
-              <div class="flex flex-row">
-                <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
-              </div>
-              <ParticipantSelector participants={exportState.exports.map((e) => e.identifier)} onSelectParticipant={(p) => setSelectedParticipant(p)} />
-            </div>
 
-            {/* <div */}
-            {/*   class="flex flex-row border-2 border-black m-2"> */}
-            {/*   <HiOutlineCalendar class="h-7 w-7 p-1" /> */}
-            {/*   <div ref={flatPicker}> */}
-            {/*   </div> */}
-            {/* </div> */}
-            <div class="flex flex-col px-2 pt-2 md:px-5 md:w-1/2">
-              <HourStats participantID={selectedParticipant()} />
-            </div>
-
-
-
-            <div class={`flex flex-col h-1/2 md:h-2/3 overflow-y-scroll px-2 pt-2 border-black border-t-2 border-b-2 shadow-md`}>
-              <div class="flex flex-row items-center justify-between">
-                <h1 class="text-xl font-semibold">Clusters</h1>
-                <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
-                  onClick={() => selectCluster(null)}
-                >
-                  <HiSolidEye class="h-5 w-5 mx-1" />
-                  Reset View
-                </button>
-              </div>
-              <For each={clusters() as Cluster[]}>
-                {(c, i) => (
-                  <div
-                    class={` ${selectedCluster() == c.id ? 'shadow-xl border-double' : ''} flex-row justify-center border-4 border-black p-2 my-2`}>
-                    <div class="flex flex-row items-center justify-between">
-                      <h1 class="text-lg font-semibold underline pr-2">Cluster {c.id + 1}</h1>
-
-                      <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
-                        onClick={() => selectCluster(c.id)}
-                      >
-                        <HiSolidEye class="h-5 w-5 mx-1" />
-                        View
-                      </button>
-
-                    </div>
-                    <p class="font-semibold">Total Time: <span>{c.totalTime.toFixed(1)}h</span></p>
-                    <div class="flex flex-row align-self-center justify-start pt-2 justify-around">
-                      <button onClick={() => labelCluster(c.id, 'work')}
-                        class={`${c.label == 'work' ? 'bg-orange-400 decoration-white text-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-orange-400`}>
-                        Work
-                      </button>
-                      <button onClick={() => labelCluster(c.id, 'home')}
-                        class={`${c.label == 'home' ? 'bg-green-400 text-white decoration-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-green-400`}>
-                        Home
-                      </button>
-
-                      <button onClick={() => labelCluster(c.id, 'other')}
-                        class={` ${c.label == 'other' ? 'bg-blue-400 text-white decoration-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-blue-400`}>
-                        Other
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </For>
-            </div>
+      <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 border-b-2 border-black">
+        <div class="order-1 col-span-1 flex-shrink border-black border-b-2 content-center justify-between pt-1 px-2">
+          <div class="flex flex-row flex-grow justify-between">
+            <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
+            <ParticipantSelector participants={exportState.exports.map((e) => e.identifier)} onSelectParticipant={(p) => setSelectedParticipant(p)} />
           </div>
         </div>
-      </div>
-    </div >
+        <div class="order-2 col-span-1 flex-row justify-center px-2 pt-2 border-b-2 border-black">
+          <HourStats participantID={selectedParticipant()} />
+        </div>
+
+        {/* clusters */}
+        <div class="order-3 overflow-y-scroll row-span-2 col-span-1 flex flex-col px-2 pt-2">
+          {/* <div */}
+          {/*   class="flex flex-row border-2 border-black m-2"> */}
+          {/*   <HiOutlineCalendar class="h-7 w-7 p-1" /> */}
+          {/*   <div ref={flatPicker}> */}
+          {/*   </div> */}
+          {/* </div> */}
+          <div class="flex flex-row items-center justify-between pb-2 border-b-2">
+            <h1 class="text-xl font-semibold">Clusters</h1>
+            <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
+              onClick={() => selectCluster(null)}
+            >
+              <HiSolidEye class="h-5 w-5 mx-1" />
+              Reset View
+            </button>
+          </div>
+
+
+
+          <div>
+            <For each={clusters() as Cluster[]}>
+              {(c, i) => (
+                <div
+                  class={`${selectedCluster() == c.id ? 'shadow-xl border-double' : ''} flex-row justify-center border-4 border-black p-2 my-2`}>
+                  <div class="flex flex-row items-center justify-between">
+                    <h1 class="text-lg font-semibold underline pr-2">Cluster {c.id + 1}</h1>
+
+                    <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
+                      onClick={() => selectCluster(c.id)}
+                    >
+                      <HiSolidEye class="h-5 w-5 mx-1" />
+                      View
+                    </button>
+
+                  </div>
+                  <p class="font-semibold">Total Time: <span>{c.totalTime.toFixed(1)}h</span></p>
+                  <div class="flex flex-row align-self-center justify-start pt-2 justify-around">
+                    <button onClick={() => labelCluster(c.id, 'work')}
+                      class={`${c.label == 'work' ? 'bg-orange-400 decoration-white text-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-orange-400`}>
+                      Work
+                    </button>
+                    <button onClick={() => labelCluster(c.id, 'home')}
+                      class={`${c.label == 'home' ? 'bg-green-400 text-white decoration-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-green-400`}>
+                      Home
+                    </button>
+
+                    <button onClick={() => labelCluster(c.id, 'other')}
+                      class={` ${c.label == 'other' ? 'bg-blue-400 text-white decoration-white font-bold' : ''} px-2 flex flex-shrink border border-gray-500 rounded-md shadow-md justify-between p-1 align-self-center bg-white hover:shadow-xl underline underline-offset-2 decoration-blue-400`}>
+                      Other
+                    </button>
+                  </div>
+                </div>
+              )}
+            </For>
+          </div>
+        </div>
+      </div >
+    </div>
   );
 };
 

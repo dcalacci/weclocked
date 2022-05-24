@@ -21,7 +21,6 @@ def get_trips(
         no_data_for_minutes=no_data_for_minutes,
     )
 
-
     sdf = pd.concat(
         [
             pd.DataFrame(
@@ -34,32 +33,38 @@ def get_trips(
         ]
     ).reset_index(drop=True)
 
+    # TODO: to catch an error with parsing android exports. We don't use
     shifted_df = sdf.copy()
     shifted_df.leaving_datetime = sdf.leaving_datetime.shift()
-    intervals = shifted_df[["datetime", "leaving_datetime"]].values
+    intervals = shifted_df[["datetime", "leaving_datetime"]].values   # trajectories yet anyway.
+    try: 
 
-    # extract trajectories within intervals
-    trajectories = [
-        TrajDataFrame(
-            pd.concat(
-                [
-                    # only include stop in beginning if it's not the first
-                    # first stop has a leaving_datetime but not a arrival
-                    pd.DataFrame(
-                        sdf.iloc[n - 1][["lat", "lng", "leaving_datetime"]]
-                    ).T.rename(columns={"leaving_datetime": "datetime"})
-                    if n > 0
-                    else None,
-                    # intermediate trajectory
-                    traj_df.set_index("datetime")[i[1] : i[0]].reset_index(),
-                    # and the stop that ends this segment
-                    pd.DataFrame(sdf.iloc[n][["lat", "lng", "datetime"]]).T,
-                ]
-            ).reset_index(drop=True)
-        )
-        for n, i in enumerate(intervals)
-        if len(traj_df.set_index("datetime")[i[1] : i[0]]) > 1
-    ]
+
+        # extract trajectories within intervals
+        trajectories = [
+            TrajDataFrame(
+                pd.concat(
+                    [
+                        # only include stop in beginning if it's not the first
+                        # first stop has a leaving_datetime but not a arrival
+                        pd.DataFrame(
+                            sdf.iloc[n - 1][["lat", "lng", "leaving_datetime"]]
+                        ).T.rename(columns={"leaving_datetime": "datetime"})
+                        if n > 0
+                        else None,
+                        # intermediate trajectory
+                        traj_df.set_index("datetime")[i[1] : i[0]].reset_index(),
+                        # and the stop that ends this segment
+                        pd.DataFrame(sdf.iloc[n][["lat", "lng", "datetime"]]).T,
+                    ]
+                ).reset_index(drop=True)
+            )
+            for n, i in enumerate(intervals)
+            if len(traj_df.set_index("datetime")[i[1] : i[0]]) > 1
+        ]
+    except Exception as e:
+        trajectories = None
+        print("Problem parsing trajectories. Returning None: ", e)
 
     return trajectories, TrajDataFrame(sdf), stop_df
 

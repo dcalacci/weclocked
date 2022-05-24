@@ -112,16 +112,23 @@ export default (props: {
           delete clusterGroups['-1'] // remove "noise" cluster
           let avgPoints: { cluster: string; lng: number; lat: number }[] = [];
           console.log("processing clusters:", clusterGroups)
+          console.log("WHY NO FOR LOOP?")
 
           // render clusters as blue circles
           _.forIn(clusterGroups, (stops: Stop[], cluster: string) => {
             let lng = _.mean(stops.map((s) => s.lng));
             let lat = _.mean(stops.map((s) => s.lat));
+            console.log("stops:", stops)
             let timesInCluster = stops.map((s) => {
+              console.log("time:", s.datetime)
+              console.log("parsed:", new Date(s.datetime))
               // for safari, see https://stackoverflow.com/questions/4310953/invalid-date-in-safari
+              var dt = new Date(s.datetime.replace(/-/g, "/"));
+              var ldt = new Date(s.leaving_datetime.replace(/-/g, "/"));
               return [
-                new Date(s.datetime.replace(/-/g, "/")),
-                new Date(s.leaving_datetime.replace(/-/g, "/"))]
+                isNaN(dt.getTime()) ? new Date(s.datetime) : dt,
+                isNaN(ldt.getTime()) ? new Date(s.leaving_datetime) : ldt
+              ]
             })
             console.log("times in cluster:", timesInCluster)
             let totalTime = _.sum(_.map(timesInCluster, (([start, end]: Date[][]) => Math.abs(end - start) / 36e5)))

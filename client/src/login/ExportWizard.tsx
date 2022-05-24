@@ -23,7 +23,7 @@ const FilePreview = (props: {
 }) => {
   const f = unwrap(props.file) as File;
   const abbreviatedFileName =
-    f.name.slice(0, 20) + (f.name.length > 20 ? "..." : "");
+    f.name.slice(0, 10) + (f.name.length > 10 ? "..." : "");
   return (
     <div class="flex flex-row align-content-start justify-between py-2 w-full">
       <div class="flex flex-row justify-start items-center">

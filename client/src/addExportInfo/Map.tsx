@@ -30,6 +30,7 @@ const Map = (props:
     clusters: Cluster[],
     selectedCluster: number | undefined,
     selectedParticipant: string
+    class?: string
   }) => {
   let mapDiv: any;
   let layerGroup: LayerGroup = L.layerGroup();
@@ -105,14 +106,14 @@ const Map = (props:
   })
 
   const NoDataMap = () => (
-    <div class="flex flex-col h-48 md:h-96 bg-gray-200 items-center justify-center">
+    <div class={`flex flex-col flex-grow bg-gray-200 items-center justify-center h-full`}>
       <h1 class="text-xl font-semibold">No Map Data</h1>
     </div>
   )
 
 
   return (
-    <div class="w-full h-48 md:h-96 mx-0 px-0 pt-0 mt-0">
+    <div class={`w-full mx-0 px-0 pt-0 mt-0 ${props.class}`}>
       <Show when={showMap()} fallback={NoDataMap}>
         <div class="h-full" ref={mapDiv} id="main-map"></div>
       </Show >

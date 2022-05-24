@@ -3,34 +3,68 @@ import numpy as np
 from skmob import TrajDataFrame
 import datasheets
 from human_id import generate_id
+import functools
 
 class WeClockExport:
     def __init__(self, identifier, filename_or_file):
         self.identifier = identifier
         self.filename_or_file = filename_or_file
         self.df = self.parse_export_file(self.filename_or_file)
+        self.type = "android"
 
     def parse_export_file(self, filename_or_file) -> pd.DataFrame:
-        df = (pd.read_csv(filename_or_file,
-                        names = np.array(["idx", "id", "type", "date", "time", "value1", "value2"]),
-                        parse_dates=[['date', 'time']]
-                         )
-              .drop(['id'], axis=1)
-             )
-        return df
+        # if it's a .zip, it's an android export and needs to be treated differently.
+        try:
+            if '.zip' in filename_or_file.filename:
+                df = pd.read_csv(filename_or_file, compression='zip',
+                               names = np.array(["idx", "type", "datetime", "value1", "value2", "value3", "value4", "value5", "fused"]))
+                self.type = "android"
+                return df
+            else: 
+                f = filename_or_file
+                df = (pd.read_csv(f,
+                                names = np.array(["idx", "id", "type", "date", "time", "value1", "value2"]),
+                                parse_dates=[['date', 'time']]
+                                 )
+                      .drop(['id'], axis=1)
+                     )
+                self.type = "ios"
+                return df
+        except Exception as e:
+            print("error!", e)
+            return pd.DataFrame()
 
+    # cache because we call this often
+    @functools.cache
     def geo_df(self) -> pd.DataFrame:
-        geodf = (self.df
-            .query("type == 'geologging'")
-            .assign(value1 = lambda x: pd.to_numeric(x.value1, errors='coerce'))
-            .drop(['idx'], axis=1)
-            .rename(columns={'value1': "lat", "value2": "lng", "date_time": "datetime"})
-            .assign(datetime = lambda x: pd.to_datetime(x.datetime))
+        geodf = pd.DataFrame()
+        if (self.type == 'ios'):
+            geodf = (self.df
+                .query("type == 'geologging'")
+                .assign(value1 = lambda x: pd.to_numeric(x.value1, errors='coerce'))
+                .drop(['idx'], axis=1)
+                .rename(columns={'value1': "lat", "value2": "lng", "date_time": "datetime"})
+                .assign(datetime = lambda x: pd.to_datetime(x.datetime))
+                ).dropna()
+        elif (self.type == 'android'):
+            geo_df = self.df.query("type == 'geo_logging'")
+            geo_df = (pd.concat([
+                                   geo_df[['type', 'datetime']],
+                                   geo_df['value1'].str.split(',', expand=True)
+                               ], axis=1)
+                .rename(columns={0: 'lat', 1: 'lng'}))
+            print("geo df:")
+            print(geo_df)
+            geodf = (geo_df
+                .rename(columns={'0': 'lat', '1': 'lng'})
+                .assign(lat = lambda x: pd.to_numeric(x.lat, errors='coerce'))
+                .assign(lng = lambda x: pd.to_numeric(x.lng, errors='coerce'))
+                .assign(datetime = lambda x: pd.to_datetime(x.datetime, errors='coerce'))
             ).dropna()
         return geodf
 
     # use .2 because it seems to work well heuristically. Can change in client if needed
-    def get_clusters(self, cluster_radius=.1, min_stops=2) -> TrajDataFrame or None:
+    def get_clusters(self, cluster_radius=.1, min_stops=1) -> TrajDataFrame or None:
         from . import geo
         # uses geo.cluster_stops to get a Data Frame with a new column for clusters
         if (len(self.geo_df()) < 5):
