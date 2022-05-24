@@ -33,10 +33,12 @@ def get_trips(
         ]
     ).reset_index(drop=True)
 
+    # TODO: to catch an error with parsing android exports. We don't use
+    shifted_df = sdf.copy()
+    shifted_df.leaving_datetime = sdf.leaving_datetime.shift()
+    intervals = shifted_df[["datetime", "leaving_datetime"]].values   # trajectories yet anyway.
     try: 
-        shifted_df = sdf.copy()
-        shifted_df.leaving_datetime = sdf.leaving_datetime.shift()
-        intervals = shifted_df[["datetime", "leaving_datetime"]].values
+
 
         # extract trajectories within intervals
         trajectories = [

@@ -13,7 +13,7 @@ class WeClockExport:
         self.type = "android"
 
     def parse_export_file(self, filename_or_file) -> pd.DataFrame:
-        print("reading:", filename_or_file)
+        # if it's a .zip, it's an android export and needs to be treated differently.
         try:
             if '.zip' in filename_or_file.filename:
                 df = pd.read_csv(filename_or_file, compression='zip',
@@ -34,6 +34,7 @@ class WeClockExport:
             print("error!", e)
             return pd.DataFrame()
 
+    # cache because we call this often
     @functools.cache
     def geo_df(self) -> pd.DataFrame:
         geodf = pd.DataFrame()
@@ -52,6 +53,8 @@ class WeClockExport:
                                    geo_df['value1'].str.split(',', expand=True)
                                ], axis=1)
                 .rename(columns={0: 'lat', 1: 'lng'}))
+            print("geo df:")
+            print(geo_df)
             geodf = (geo_df
                 .rename(columns={'0': 'lat', '1': 'lng'})
                 .assign(lat = lambda x: pd.to_numeric(x.lat, errors='coerce'))
