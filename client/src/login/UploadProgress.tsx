@@ -64,9 +64,11 @@ export default (props: {
     console.log("sending exports...")
     try {
       //TODO: change to server URL
+      console.log(import.meta.env)
       const response = await axios.post(
         // "http://localhost:5000/exports/upload",
-        "https://weclocked.witchy.business/exports/upload",
+        `${import.meta.env.VITE_API_URL}/exports/upload`,
+        // "https://weclocked.witchy.business/exports/upload",
         formData,
         {
           headers: {
