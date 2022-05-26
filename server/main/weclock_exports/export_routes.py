@@ -24,8 +24,6 @@ class Upload(Resource):
         identifiers = args["identifiers"].split("|")
         email = args["email"]
 
-        print("Recieved args:", args)
-
         if len(uploaded_files) != len(identifiers):
             return {
                 "message": "The number of files and identifiers must be the same"

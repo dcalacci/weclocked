@@ -31,6 +31,7 @@ export default (props: {
     const percentage = Math.round((100 * event.loaded) / event.total);
     console.log("upload progress:", event, percentage)
     setUploadPercent(percentage);
+    console.log("data:", data.loading)
   };
 
   async function uploadExports(source: {
@@ -159,7 +160,7 @@ export default (props: {
 
   return (
     <Switch>
-      <Match when={props.exports.length >= 1}>
+      <Match when={props.exports.length >= 1 && !data.loading}>
         <p
           onClick={() =>
             setUploadData({ exports: props.exports, email: props.email })
