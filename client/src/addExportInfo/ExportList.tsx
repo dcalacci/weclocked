@@ -49,7 +49,7 @@ const Labeler = () => {
   }
 
   return (
-    <div class="flex-col content-center justify-center w-full h-full">
+    <div class="flex-col content-center justify-center w-full h-full md:pb-16">
 
       <Map
         class="h-1/3"
@@ -132,7 +132,6 @@ const Labeler = () => {
           </div>
         </div>
         <div class="col-span-1 row-span-1 order-5 h-16" />
-
       </div >
     </div>
   );

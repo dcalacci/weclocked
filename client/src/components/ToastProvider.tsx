@@ -56,8 +56,8 @@ const ToastProvider: Component = (props: JSX.HTMLAttributes<HTMLElement>): JSXEl
     console.log("tw color:", props.tailwindColor)
     //TODO: background color changing from useToast not working!
     return (
-      <div class="show fixed top-5 w-full px-10 py-2 h-fit">
-        <div class={`rounded-lg shadow-lg  p-5 bg-slate-100`}>
+      <div class="show fixed top-5 md:top-20 w-full px-10 py-2 h-fit z-50">
+        <div class={`rounded-lg shadow-lg p-5 bg-slate-100`}>
           <p class={`font-semibold text-` + props.textColor}>{props.msg}</p>
         </div>
       </div>
@@ -66,10 +66,10 @@ const ToastProvider: Component = (props: JSX.HTMLAttributes<HTMLElement>): JSXEl
 
   return (
     <ToastContext.Provider value={store}>
-      {props.children}
       <Show when={state.displayed}>
         <ToastDialog {...state} />
       </Show>
+      {props.children}
     </ToastContext.Provider>
   )
 }
