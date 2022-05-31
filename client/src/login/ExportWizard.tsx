@@ -48,7 +48,7 @@ const ExportWizard: Component = () => {
   );
 
   return (
-    <div class="flex-col content-center justify-center w-full h-full">
+    <div class="flex flex-col content-center items-center justify-center w-full h-full">
       <div
         class="sm:max-w-lg 
 				w-full 

@@ -135,7 +135,7 @@ export default (props: {
             class="h-6 w-6 font-bold md:text-gray-400 text-red-400 group-hover:text-red-400" />
         </button>
         <button
-          onClick={() => removeExport(props.export.identifier)}
+          onClick={(e) => { e.preventDefault(); removeExport(props.export.identifier) }}
           class="group px-2">
           <icons.HiOutlineXCircle
             class="h-6 w-6 font-bold md:text-gray-400 text-red-400 group-hover:text-red-400" />
