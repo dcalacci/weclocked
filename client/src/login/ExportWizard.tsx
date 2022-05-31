@@ -48,7 +48,7 @@ const ExportWizard: Component = () => {
   );
 
   return (
-    <div class="flex flex-col content-center items-center justify-center w-full">
+    <div class="content-center items-center justify-center w-full h-full pb-20">
       <div
         class="sm:max-w-lg 
 				w-full 
@@ -114,7 +114,6 @@ const ExportWizard: Component = () => {
             onUploaded={() => navigate("/label")}
           />
         </form>
-        <div class="h-20" />
       </div>
     </div >
   );

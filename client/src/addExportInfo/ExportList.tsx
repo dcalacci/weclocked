@@ -49,7 +49,7 @@ const Labeler = () => {
   }
 
   return (
-    <div class="flex-col content-center justify-center w-full h-full md:pb-20">
+    <div class="flex-col content-center justify-center w-full h-screen md:pb-20">
       <div class="w-full h-1/3">
         <Map
           stops={stops() as Stops}
