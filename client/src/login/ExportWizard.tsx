@@ -48,10 +48,10 @@ const ExportWizard: Component = () => {
   );
 
   return (
-    <div class="content-center items-center justify-center w-full h-full">
+    <div class="flex flex-col content-center items-center justify-center w-full">
       <div
         class="sm:max-w-lg 
-				w-full 
+        max-w-lg
 				p-5 
 				bg-white 
 				z-10"

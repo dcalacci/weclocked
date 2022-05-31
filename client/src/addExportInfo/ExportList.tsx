@@ -49,7 +49,7 @@ const Labeler = () => {
   }
 
   return (
-    <div class="flex-col content-center justify-center w-full md:pb-20">
+    <div class="flex-col content-center justify-center w-full">
 
       <div class="w-full h-64 fixed top-0 z-50">
         <Map
