@@ -16,6 +16,7 @@ import { useNavigate } from "solid-app-router";
 
 
 import ExportCard from "./ExportCard";
+import { useToast } from "../components/ToastProvider";
 
 const ExportWizard: Component = () => {
 
@@ -27,16 +28,15 @@ const ExportWizard: Component = () => {
     },
   ] = useExports();
 
-  const [error, setError] = createSignal("");
+  const [
+    toastState,
+    {
+      setMessage,
+    },
+  ] = useToast();
+
   const [email, setEmail] = createSignal("");
   const navigate = useNavigate();
-
-  createEffect(
-    on(error, () => {
-      console.log("error set:", error());
-      setTimeout(() => setError(""), 10000), { defer: true };
-    })
-  );
 
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
@@ -52,7 +52,7 @@ const ExportWizard: Component = () => {
       <div
         class="sm:max-w-lg 
 				w-full 
-				p-10 
+				p-5 
 				bg-white 
 				z-10"
       >
@@ -64,9 +64,6 @@ const ExportWizard: Component = () => {
             {UPLOAD_CONSTANTS.FORM_DESC}
           </p>
         </div>
-        <Show when={error() != ""}>
-          <ErrorTag errorMsg={error()} />
-        </Show>
 
         <form class="mt-8 space-y-3" action="#" method="post">
           {/* <ValidatedTextField */}
@@ -94,7 +91,7 @@ const ExportWizard: Component = () => {
                 <ExportCard
                   isOpen={i == 0}
                   export={e()}
-                  setError={(s: string) => setError(s)} />)
+                  setError={(s: string) => setMessage({ msg: s, tailwindColor: "red-300" })} />)
             )}
 
           </div>
@@ -102,7 +99,9 @@ const ExportWizard: Component = () => {
           <div class="grid grid-cols-1 gap-5 ">
             <Button
               class="col-span-1 sm:w-auto border border-gray-100 py-4"
-              onClick={addExport}
+              onClick={() => {
+                addExport()
+              }}
             >
               Add Participant
             </Button>
@@ -111,7 +110,7 @@ const ExportWizard: Component = () => {
           <UploadProgress
             exports={exportState.exports as WeClockExport[]}
             email={email()}
-            setError={setError}
+            setError={(s: string) => setMessage({ msg: s, tailwindColor: "red-300" })}
             onUploaded={() => navigate("/label")}
           />
         </form>

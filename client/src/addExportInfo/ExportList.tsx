@@ -63,7 +63,6 @@ const Labeler = () => {
         showClusters={showClusters()}
       />
 
-
       <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 overflow-y-scroll">
         <div class="order-1 col-span-1 flex-shrink border-black border-b-2 content-center justify-between pt-1 px-2">
           <div class="flex flex-row flex-grow justify-between">
@@ -86,7 +85,6 @@ const Labeler = () => {
               Reset View
             </button>
           </div>
-
 
 
           <div>

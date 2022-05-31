@@ -42,8 +42,7 @@ export default (props: {
   export: WeClockExport
   setError?: (m: string) => void
 }) => {
-  const [
-    ,
+  const [,
     {
       removeExport,
       setFiles,
