@@ -1,5 +1,4 @@
-import { Accessor, Setter } from "solid-js";
-import { UPLOAD_CONSTANTS } from "../constants";
+import { Accessor } from "solid-js";
 
 export default (props: {
   text: Accessor<string>;

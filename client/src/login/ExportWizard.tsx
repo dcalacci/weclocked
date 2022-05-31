@@ -2,7 +2,7 @@ import { Component, Accessor } from "solid-js";
 
 import { createSignal, createEffect, indexArray } from "solid-js";
 
-import { on, Show, For } from "solid-js";
+import { on, Show } from "solid-js";
 
 import { validateEmail } from "../utils";
 import { Button } from "../components";
@@ -17,14 +17,13 @@ import { useNavigate } from "solid-app-router";
 
 import ExportCard from "./ExportCard";
 
-const ExportWizard: Component = (props) => {
+const ExportWizard: Component = () => {
 
   const [
     exportState,
     {
       setUserEmail,
       addExport,
-      clearExports,
     },
   ] = useExports();
 
@@ -41,11 +40,6 @@ const ExportWizard: Component = (props) => {
 
   // update store email if it's valid
   createEffect(on(email, (e) => (validateEmail(e) ? setUserEmail(e) : null)));
-
-  // update current export's uploaded files when new files are added
-  const cancelUpload = () => {
-    clearExports();
-  };
 
   const ErrorTag = ({ errorMsg }: { errorMsg: string }) => (
     <div class="flex flex-col border-2-rose-700 bg-rose-200 rounded-lg p-3 m-2">
@@ -107,10 +101,10 @@ const ExportWizard: Component = (props) => {
 
           <div class="grid grid-cols-1 gap-5 ">
             <Button
-              class="col-span-1 sm:w-auto border border-gray-100 py-5"
+              class="col-span-1 sm:w-auto border border-gray-100 py-4"
               onClick={addExport}
             >
-              New Participant
+              Add Participant
             </Button>
           </div>
 
@@ -120,29 +114,6 @@ const ExportWizard: Component = (props) => {
             setError={setError}
             onUploaded={() => navigate("/label")}
           />
-          <Show when={exportState.exports.length >= 1}>
-            <p
-              onClick={cancelUpload}
-              class="transition 
-							text-center
-							ease-in 
-							shadow-md
-							border-rose-400
-							border-2
-							cursor-pointer 
-							font-semibold
-							rounded-sm
-							hover:shadow-md
-							hover:bg-rose-200 
-							hover:text-slate-700
-							active:bg-rose-300 
-							active:shadow-sm
-								my-5
-								p-4"
-            >
-              Clear All
-            </p>
-          </Show>
         </form>
       </div>
       <div class="h-16" />

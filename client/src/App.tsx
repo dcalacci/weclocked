@@ -11,6 +11,7 @@ import * as icons from "solid-icons/hi";
 
 const App: Component = () => {
   return (
+    //@ts-ignore
     <ExportsProvider>
       <div class="container-fluid w-full bg-white h-screen md:pb-0">
         <nav class="hidden md:block md:flex flex-wrap items-center py-3 bg-white border-orange-300 border-2 hover:text-underline m-5 rounded-lg drop-shadow-sm">

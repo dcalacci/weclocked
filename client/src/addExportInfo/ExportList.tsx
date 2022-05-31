@@ -1,38 +1,28 @@
-import { createEffect, createMemo, Match, on, onMount, Show, Switch } from "solid-js";
-import { Chart } from 'chart.js'
+import { createEffect, createMemo, on, Show } from "solid-js";
 
 import { For } from "solid-js";
-import { createSignal, createSelector } from "solid-js";
-import { unwrap } from "solid-js/store";
+import { createSignal } from "solid-js";
 import { useExports } from "../weclock/ExportProvider";
 
 import { Cluster, Locs, Stops } from "../weclock/export";
 
-import { HiOutlineCalendar, HiSolidEye } from 'solid-icons/hi'
-import { SolidApexCharts } from 'solid-apexcharts';
+import { HiSolidEye } from 'solid-icons/hi'
 
 import ToggleButton from '../components/ToggleButton'
 import Map from "./Map";
 import _ from "lodash";
-import flatpickr from "flatpickr";
 
 const Labeler = () => {
-  const [exportState, { setStore, setExportFiles }] = useExports();
+  const [exportState, { setStore }] = useExports();
   const [selectedParticipant, setSelectedParticipant] = createSignal<string>(exportState.exports[0].identifier)
-  const [selectedCluster, selectCluster] = createSignal<number>()
+  const [selectedCluster, selectCluster] = createSignal<number | null>(null)
 
   const [showClusters, setShowClusters] = createSignal<boolean>(true)
   const [showPoints, setShowPoints] = createSignal<boolean>(false)
   const [showStops, setShowStops] = createSignal<boolean>(false)
-  const [startDate, setStartDate] = createSignal<Date>()
-  const [endDate, setEndDate] = createSignal<Date>()
 
-  createEffect(() => {
-    console.log("showing layers:", showClusters(), showStops(), showPoints())
-  })
-
-  createEffect(on(selectedParticipant, (p: string) => {
-    let exp = _.find(exportState.exports, (e) => e.identifier == p)
+  // select first cluster for new participant
+  createEffect(on(selectedParticipant, () => {
     selectCluster(0)
   }))
 
@@ -101,7 +91,7 @@ const Labeler = () => {
 
           <div>
             <For each={clusters() as Cluster[]}>
-              {(c, i) => (
+              {(c) => (
                 <div
                   class={`${selectedCluster() == c.id ? 'shadow-xl border-double' : ''} flex-row justify-center border-2 border-black p-2 my-2 rounded-xl`}>
                   <div class="flex flex-row items-center justify-between">
@@ -151,7 +141,7 @@ const Labeler = () => {
 };
 
 const HourStats = (props: { participantID: string }) => {
-  const [exportState, { setStore, setExportFiles }] = useExports();
+  const [exportState] = useExports();
 
   const clusters = createMemo(() => {
     return exportState.clusters.filter((c) => c.identifier == props.participantID) || []
@@ -202,7 +192,7 @@ const ParticipantSelector = (props: { participants: string[], onSelectParticipan
         <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
           <div class="py-1" role="none">
             <For each={props.participants}>
-              {(p, i) => (
+              {(p) => (
                 <a href="#" onClick={() => { setSelected(false); props.onSelectParticipant(p) }} class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">{p}</a>
               )}
             </For>

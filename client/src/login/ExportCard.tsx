@@ -4,7 +4,7 @@
 
 import { HiOutlineXCircle, HiSolidFolder } from "solid-icons/hi";
 import * as icons from "solid-icons/hi";
-import { createEffect, createMemo, createSignal, For, on, Show } from "solid-js";
+import { createEffect, createSignal, For, on, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { Button, ValidatedTextField } from "../components";
 import { WeClockExport } from "../weclock/export";
@@ -43,7 +43,7 @@ export default (props: {
   setError?: (m: string) => void
 }) => {
   const [
-    exportState,
+    ,
     {
       removeExport,
       setFiles,
@@ -87,7 +87,7 @@ export default (props: {
   };
 
   // add files to export when dropped
-  createEffect(on(droppedFiles, (prev) => {
+  createEffect(on(droppedFiles, () => {
     let files = droppedFiles();
     if (files.length > 0) {
       addFilesToExport(props.export.identifier, files);
@@ -112,7 +112,7 @@ export default (props: {
     return (
       <Show when={props.files.length > 0} fallback={<div></div>}>
         <For each={props.files}>
-          {(file, index) => (
+          {(file) => (
             <FilePreview file={file} onPressDelete={deleteFile} />
           )}
         </For>

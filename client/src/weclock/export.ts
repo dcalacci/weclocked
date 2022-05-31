@@ -86,6 +86,7 @@ export class WeClockExport {
   }
 
   clone(obj: WeClockExport): WeClockExport {
+    //TODO: stub
     return new WeClockExport(this.files, this.identifier, this.notes);
   }
 

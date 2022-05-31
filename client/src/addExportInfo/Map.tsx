@@ -1,6 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import L, { Layer, LayerGroup } from "leaflet";
-import { createEffect, createMemo, Show, Switch } from "solid-js";
+import { createEffect, createMemo, onMount, Show } from "solid-js";
 import _ from "lodash";
 
 import { Cluster, Locs, Point, Stop, Stops } from "../weclock/export";
@@ -9,6 +9,7 @@ import { unwrap } from "solid-js/store";
 const minClusterRadius = 400; // in meters
 
 const buildMap = (args: { mapDiv: HTMLDivElement; startLocation: Point }) => {
+  console.log("building map...", args.mapDiv)
   const map = L.map(args.mapDiv).setView(
     [args.startLocation.lat, args.startLocation.lng],
     12
@@ -28,7 +29,7 @@ const Map = (props:
     stops: Stops,
     locs: Locs,
     clusters: Cluster[],
-    selectedCluster: number | undefined,
+    selectedCluster: number | null,
     selectedParticipant: string
     class?: string
     showStops?: boolean
@@ -42,12 +43,11 @@ const Map = (props:
 
   createEffect(() => {
     let clusterID = props.selectedCluster
-    console.log("selected cluster:", clusterID)
     if (clusterID == undefined) {
       map && map.flyTo(L.latLng(props.stops.avgLoc), 12)
     } else {
       console.log(props.clusters)
-      let c = _.find(props.clusters, (c) => c.id == clusterID) as Cluster
+      let c = _.find(props.clusters, (c: Cluster) => c.id == clusterID) as Cluster
       if (c) {
         console.log("flying...")
         map && map.flyTo(L.latLng(c.centroid.lat, c.centroid.lng), 15)
@@ -55,9 +55,17 @@ const Map = (props:
     }
   })
 
-  createEffect(() => {
-    console.log("Mounting map component...")
+  // shows map on component mount
+  onMount(() => {
+    console.log("On mount...")
     let mapLoc = unwrap(props.stops) ? unwrap(props.stops).avgLoc : { lat: 45, lng: -71 }
+    if (showMap()) map = buildMap({ mapDiv, startLocation: mapLoc });
+  })
+
+  // re-show map if we need to change any layers or other lage effects
+  createEffect(() => {
+    let mapLoc = unwrap(props.stops) ? unwrap(props.stops).avgLoc : { lat: 45, lng: -71 }
+    console.log("current map...", map)
     if (!map && showMap()) map = buildMap({ mapDiv, startLocation: mapLoc });
 
     let locs = unwrap(props.locs);

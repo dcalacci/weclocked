@@ -25,7 +25,7 @@ export default (props: {
     email: string;
   }>({ exports: [], email: "" });
 
-  const [exportState, { setStore }] = useExports();
+  const [, { setStore }] = useExports();
 
   const onUploadProgress = (event: ProgressEvent) => {
     const percentage = Math.round((100 * event.loaded) / event.total);
@@ -93,7 +93,7 @@ export default (props: {
     return undefined;
   }
 
-  const [data, { mutate, refetch }] = createResource<
+  const [data] = createResource<
     UploadData | undefined,
     { exports: WeClockExport[]; email: string }
   >(uploadData, uploadExports);
@@ -113,9 +113,6 @@ export default (props: {
           let stops = s.records
           let clusterGroups = _.groupBy(stops, "clusterID");
           delete clusterGroups['-1'] // remove "noise" cluster
-          let avgPoints: { cluster: string; lng: number; lat: number }[] = [];
-          console.log("processing clusters:", clusterGroups)
-          console.log("WHY NO FOR LOOP?")
 
           // render clusters as blue circles
           _.forIn(clusterGroups, (stops: Stop[], cluster: string) => {
@@ -134,7 +131,7 @@ export default (props: {
               ]
             })
             console.log("times in cluster:", timesInCluster)
-            let totalTime = _.sum(_.map(timesInCluster, (([start, end]: Date[][]) => Math.abs(end - start) / 36e5)))
+            let totalTime = _.sum(_.map(timesInCluster, (([start, end]: [Date, Date]) => Math.abs(end.getTime() - start.getTime()) / 36e5)))
             let avgDist = _.mean(_.map(stops, (p) => (haversine({ lng, lat }, p))))
 
             clusterData.push({
@@ -167,20 +164,21 @@ export default (props: {
           }
           class="transition 
 							text-center
+          text-sm
 							ease-in 
 							shadow-md
 							border-green-400
-							border-2
+							border-4
 							cursor-pointer 
 							font-semibold
-							rounded-sm
+							rounded-md
 							hover:shadow-md
 							hover:bg-green-200 
 							hover:text-slate-700
 							active:bg-green-300 
 							active:shadow-sm
 								my-5
-								p-4"
+          py-4"
         >
           Process Exports
         </p>

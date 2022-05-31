@@ -1,10 +1,11 @@
-import { Component, JSXElement } from 'solid-js'
+import { Component, JSXElement, JSX } from 'solid-js'
 
-type ButtonProps = {
+
+export type ButtonProps = {
   onClick: () => void;
   disabled?: boolean;
   class?: string;
-}
+} & JSX.HTMLAttributes<HTMLButtonElement>
 
 const Button: Component<ButtonProps> = (props): JSXElement => {
   const onPressButton = (e: Event) => {

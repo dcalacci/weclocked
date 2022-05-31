@@ -1,4 +1,4 @@
-import { createContext, useContext } from "solid-js";
+import { createContext, useContext, JSXElement, JSX } from "solid-js";
 import type { Component } from "solid-js";
 import { Store } from "solid-js/store";
 import { createLocalStore } from "../store";
@@ -8,7 +8,6 @@ import { STORAGE_CONSTANTS } from "../constants";
 
 export type ExportState = Store<{
   exports: WeClockExport[];
-  currentExportIndex: number;
   email: string;
   stops: Stops[];
   clusters: Cluster[];
@@ -37,11 +36,10 @@ const ExportsContext = createContext<[ExportState, ExportActions]>();
 // OK, so when an item is created, an object, and it gets added to the 'exports' array, it simply has none of the weird solidjs properties.
 
 // This provider allows you to wrap components in <ExportsProvider> and get access to the global store below
-const ExportsProvider: Component = (props) => {
+const ExportsProvider: Component = (props: JSX.HTMLAttributes<HTMLElement>): JSXElement => {
   const [state, setState] = createLocalStore<ExportState>(
     {
       exports: [new WeClockExport([], "Participant 1", "")] as WeClockExport[],
-      currentExportIndex: 0,
       email: "",
       stops: [],
       locs: [],
@@ -66,10 +64,6 @@ const ExportsProvider: Component = (props) => {
         ] as WeClockExport[]);
       },
       removeExport: (identifier) => {
-        setState(
-          "currentExportIndex",
-          (i) => Math.min(i - 1, 0)
-        )
         setState(
           "exports",
           (exps) => exps.filter((e) => {
