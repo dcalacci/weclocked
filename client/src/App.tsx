@@ -28,7 +28,7 @@ const App: Component = () => {
             </Routes>
           </div>
 
-          <div class="flex flex-row show fixed bottom-1 w-full px-1 py-2 h-fit justify-center h-16 z-50">
+          <div class="flex flex-row show fixed bottom-1 w-full px-1 py-2 h-fit justify-center h-20 z-50">
             <div class="w-full h-full bg-white border-2 rounded-xl bottom-0 shadow-lg flex flex-row md:w-1/2">
               <div class="flex flex-1 justify-center text-xs font-bold text-center">
                 <div class="flex flex-grow items-center justify-center space-x-4 px-6">

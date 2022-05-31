@@ -114,7 +114,7 @@ const ExportWizard: Component = () => {
             onUploaded={() => navigate("/label")}
           />
         </form>
-        <div class="h-16" />
+        <div class="h-20" />
       </div>
     </div >
   );
