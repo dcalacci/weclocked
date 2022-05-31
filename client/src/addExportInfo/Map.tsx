@@ -128,7 +128,7 @@ const Map = (props:
 
 
   return (
-    <div class={`w-full mx-0 px-0 pt-0 mt-0 ${props.class}`}>
+    <div class={`h-full w-full mx-0 px-0 pt-0 mt-0`}>
       <Show when={showMap()} fallback={NoDataMap}>
         <div class="h-full" ref={mapDiv} id="main-map"></div>
       </Show >

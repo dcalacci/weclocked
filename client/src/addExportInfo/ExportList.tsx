@@ -49,19 +49,19 @@ const Labeler = () => {
   }
 
   return (
-    <div class="flex-col content-center justify-center w-full h-full md:pb-16">
-
-      <Map
-        class="h-1/3"
-        stops={stops() as Stops}
-        locs={locs() as Locs}
-        clusters={clusters() as Cluster[]}
-        selectedCluster={selectedCluster()}
-        selectedParticipant={selectedParticipant()}
-        showPoints={showPoints()}
-        showStops={showStops()}
-        showClusters={showClusters()}
-      />
+    <div class="flex-col content-center justify-center w-full h-full md:pb-20">
+      <div class="w-full h-1/3">
+        <Map
+          stops={stops() as Stops}
+          locs={locs() as Locs}
+          clusters={clusters() as Cluster[]}
+          selectedCluster={selectedCluster()}
+          selectedParticipant={selectedParticipant()}
+          showPoints={showPoints()}
+          showStops={showStops()}
+          showClusters={showClusters()}
+        />
+      </div>
 
       <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 overflow-y-scroll">
         <div class="order-1 col-span-1 flex-shrink border-black border-b-2 content-center justify-between pt-1 px-2">
@@ -131,7 +131,7 @@ const Labeler = () => {
             <ToggleButton label={"Toggle Points"} onSetToggle={setShowPoints} toggleState={showPoints()} />
           </div>
         </div>
-        <div class="col-span-1 row-span-1 order-5 h-16" />
+        <div class="col-span-1 row-span-1 order-5 h-20" />
       </div >
     </div>
   );
