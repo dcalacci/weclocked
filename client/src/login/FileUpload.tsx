@@ -127,9 +127,9 @@ const FileUpload = (props: {
             class="hidden"
             onChange={props.onFileChange}
           />
-        <div class="flex flex-col items-center justify-center w-full">
-          {props.children}
-        </div>
+          <div class="flex flex-col items-center justify-center w-full">
+            {props.children}
+          </div>
         </label>
 
       </div>

@@ -16,17 +16,15 @@ export type ExportState = Store<{
 }>;
 
 export type ExportActions = {
-  getCurrentExport: () => WeClockExport;
   getExportById: (identifier: string) => WeClockExport | undefined;
   addExport: () => void;
-  addFilesToExport: (idx: number, files: File[]) => void;
-  setExportFiles: (idx: number, files: File[]) => void;
+  addFilesToExport: (identifier: string, files: File[]) => void;
+  setFiles: (identifier: string, files: File[]) => void;
+  setNotes: (identifier: string, notes: string) => void;
   setUserEmail: (email: string) => void;
-  setCurrentExportIndex: (idx: number) => void;
-  setCurrentFiles: (files: File[]) => void;
-  setCurrentNotes: (notes: string) => void;
-  updateExportId: (idx: number, newId: string) => void;
+  updateExportId: (identifier: string, newId: string) => void;
   clearExports: () => void;
+  removeExport: (identifier: string) => void;
   setStore: (...args: any) => any;
 };
 
@@ -67,21 +65,30 @@ const ExportsProvider: Component = (props) => {
           new WeClockExport([], "Participant 1", ""),
         ] as WeClockExport[]);
       },
-      getCurrentExport: () => {
-        let exps = state.exports as WeClockExport[];
-        return exps[state.currentExportIndex];
+      removeExport: (identifier) => {
+        setState(
+          "currentExportIndex",
+          (i) => Math.min(i - 1, 0)
+        )
+        setState(
+          "exports",
+          (exps) => exps.filter((e) => {
+            return e.identifier != identifier
+          })
+        );
       },
       getExportById: (identifier) => {
         let exps = state.exports as WeClockExport[];
         let exp = exps.find((exportObj) => exportObj.identifier === identifier);
         return exp;
       },
-      addFilesToExport: (idx, files) => {
+      addFilesToExport: (identifier, files) => {
         setState(
           "exports",
-          idx,
-          (exp) => new WeClockExport([...exp.files, ...files], exp.identifier)
+          (exp) => exp.identifier == identifier,
+          (exp) => new WeClockExport([...exp.files, ...files], exp.identifier, exp.notes)
         );
+
       },
       addExport: () => {
         setState(
@@ -90,38 +97,28 @@ const ExportsProvider: Component = (props) => {
           new WeClockExport([], `Participant ${state.exports.length + 1}`, "")
         );
       },
-      setExportFiles: (idx: number, files: File[]) => {
+      setFiles: (identifier, files: File[]) => {
         setState(
           "exports",
-          idx,
+          (exp) => exp.identifier == identifier,
           (exp) => new WeClockExport([...files], exp.identifier, exp.notes)
         );
-      },
-      setCurrentExportIndex: (idx: number) => {
-        setState("currentExportIndex", idx);
       },
       setUserEmail: (email: string) => {
         setState("email", email);
       },
-      setCurrentFiles: (files: File[]) => {
+      setNotes: (identifier, notes) => {
         setState(
           "exports",
-          state.currentExportIndex,
-          (exp) => new WeClockExport([...files], exp.identifier, exp.notes)
-        );
-      },
-      setCurrentNotes: (notes: string) => {
-        setState(
-          "exports",
-          state.currentExportIndex,
+          (exp) => exp.identifier == identifier,
           (exp) => new WeClockExport([...exp.files], exp.identifier, notes)
         );
       },
 
-      updateExportId: (idx: number, newId: string) => {
+      updateExportId: (identifier, newId) => {
         setState(
           "exports",
-          idx,
+          (exp) => exp.identifier == identifier,
           (exp) => new WeClockExport([...exp.files], newId, exp.notes)
         );
       },

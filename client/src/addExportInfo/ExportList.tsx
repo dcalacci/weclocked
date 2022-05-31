@@ -57,11 +57,7 @@ const Labeler = () => {
       label
     )
   }
-  let flatPicker: any;
 
-  const [calendarOpen, setCalendarOpen] = createSignal(false)
-
-  //TODO: change button highlight on label change
   return (
     <div class="flex-col content-center justify-center w-full h-full">
 
@@ -78,7 +74,7 @@ const Labeler = () => {
       />
 
 
-      <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 border-b-2 border-black">
+      <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 overflow-y-scroll">
         <div class="order-1 col-span-1 flex-shrink border-black border-b-2 content-center justify-between pt-1 px-2">
           <div class="flex flex-row flex-grow justify-between">
             <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
@@ -90,13 +86,7 @@ const Labeler = () => {
         </div>
 
         {/* clusters */}
-        <div class="order-3 overflow-y-scroll row-span-2 col-span-1 flex flex-col px-2 pt-2">
-          {/* <div */}
-          {/*   class="flex flex-row border-2 border-black m-2"> */}
-          {/*   <HiOutlineCalendar class="h-7 w-7 p-1" /> */}
-          {/*   <div ref={flatPicker}> */}
-          {/*   </div> */}
-          {/* </div> */}
+        <div class="order-3 md:overflow-y-scroll row-span-2 col-span-1 flex flex-col px-2 pt-2">
           <div class="flex flex-row items-center justify-between pb-2 border-b-2">
             <h1 class="text-xl font-semibold">Clusters</h1>
             <button class="flex flex-row items-center p-1 border-2 rounded-md shadow-md hover:bg-black hover:text-white hover:font-semibold"
@@ -113,7 +103,7 @@ const Labeler = () => {
             <For each={clusters() as Cluster[]}>
               {(c, i) => (
                 <div
-                  class={`${selectedCluster() == c.id ? 'shadow-xl border-double' : ''} flex-row justify-center border-4 border-black p-2 my-2`}>
+                  class={`${selectedCluster() == c.id ? 'shadow-xl border-double' : ''} flex-row justify-center border-2 border-black p-2 my-2 rounded-xl`}>
                   <div class="flex flex-row items-center justify-between">
                     <h1 class="text-lg font-semibold underline pr-2">Cluster {c.id + 1}</h1>
 
@@ -153,6 +143,8 @@ const Labeler = () => {
             <ToggleButton label={"Toggle Points"} onSetToggle={setShowPoints} toggleState={showPoints()} />
           </div>
         </div>
+        <div class="col-span-1 row-span-1 order-5 h-16" />
+
       </div >
     </div>
   );
@@ -173,31 +165,6 @@ const HourStats = (props: { participantID: string }) => {
     })
     return timeInLabel
   })
-
-  // let chartBarRef: any;
-  // const labels = _.keys(hoursWorked())
-  // const dataBarChart = {
-  //   labels,
-  //   datasets: [
-  //     {
-  //       label: "Hours Worked",
-  //       backgroundColor: "hsl(252, 82.9%, 67.8%)",
-  //       borderColor: "hsl(252, 82.9%, 67.8%)",
-  //       data: _.map(labels, (l) => hoursWorked[l])
-  //     },
-  //   ],
-  // };
-
-  // const configBarChart = {
-  //   type: "bar",
-  //   data: dataBarChart,
-  //   options: {},
-  // };
-
-  // var chartBar = new Chart(
-  //   chartBarRef,
-  //   configBarChart
-  // );
 
   return (
     <div class="flex flex-row justify-around w-full">

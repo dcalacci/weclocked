@@ -18,8 +18,8 @@ export default (props: {
     }
   };
   return (
-    <div class={`grid grid-cols-1 space-y-1 ${props.class}`}>
-      <label class="text-lg font-bold text-slate-600 tracking-wide">
+    <div class={`grid grid-cols-1 ${props.class}`}>
+      <label class="font-bold text-slate-600 tracking-wide">
         {props.title}
       </label>
       <span class="text-sm text-slate-500">{props.description}</span>
@@ -28,19 +28,19 @@ export default (props: {
         value={props.text()}
         type="textarea"
         class={`
-								${
-                  props.validator && props.validator(props.text())
-                    ? "border-emerald-400"
-                    : "border-rose-300"
-                }
+								${props.validator && props.validator(props.text())
+            ? "border-emerald-400"
+            : "border-rose-300"
+          }
 								${props.text() == "" ? "border-slate-400" : ""}
 								transition 
 								ease-in
 								duration-400
 								text-base
+                mt-1
 								p-2
 								border-4
-								rounded-sm
+								rounded-lg
 								focus:outline-none
                 ${props.inputClass}
                 `}
