@@ -132,7 +132,7 @@ export default (props: {
           onClick={(e) => { console.log('e', e); e.preventDefault(); console.log("is open?", isOpen()); setIsOpen(true) }}
           class="group px-2">
           <icons.HiSolidPencil
-            class="h-6 w-6 font-bold md:text-gray-400 text-red-400 group-hover:text-red-400" />
+            class="h-6 w-6 font-bold text-gray-400  group-hover:text-gray-800" />
         </button>
         <button
           onClick={(e) => { e.preventDefault(); removeExport(props.export.identifier) }}
