@@ -11,6 +11,7 @@ import { Cluster, Locs, Stops } from "../weclock/export";
 import { HiOutlineCalendar, HiSolidEye } from 'solid-icons/hi'
 import { SolidApexCharts } from 'solid-apexcharts';
 
+import ToggleButton from '../components/ToggleButton'
 import Map from "./Map";
 import _ from "lodash";
 import flatpickr from "flatpickr";
@@ -19,6 +20,16 @@ const Labeler = () => {
   const [exportState, { setStore, setExportFiles }] = useExports();
   const [selectedParticipant, setSelectedParticipant] = createSignal<string>(exportState.exports[0].identifier)
   const [selectedCluster, selectCluster] = createSignal<number>()
+
+  const [showClusters, setShowClusters] = createSignal<boolean>(true)
+  const [showPoints, setShowPoints] = createSignal<boolean>(false)
+  const [showStops, setShowStops] = createSignal<boolean>(false)
+  const [startDate, setStartDate] = createSignal<Date>()
+  const [endDate, setEndDate] = createSignal<Date>()
+
+  createEffect(() => {
+    console.log("showing layers:", showClusters(), showStops(), showPoints())
+  })
 
   createEffect(on(selectedParticipant, (p: string) => {
     let exp = _.find(exportState.exports, (e) => e.identifier == p)
@@ -61,6 +72,9 @@ const Labeler = () => {
         clusters={clusters() as Cluster[]}
         selectedCluster={selectedCluster()}
         selectedParticipant={selectedParticipant()}
+        showPoints={showPoints()}
+        showStops={showStops()}
+        showClusters={showClusters()}
       />
 
 
@@ -130,6 +144,13 @@ const Labeler = () => {
                 </div>
               )}
             </For>
+          </div>
+        </div>
+        <div class="col-span-1 row-span-1 order-4">
+          <div class="flex flex-col items-start">
+            <ToggleButton label={"Toggle Clusters"} onSetToggle={setShowClusters} toggleState={showClusters()} />
+            <ToggleButton label={"Toggle Stops"} onSetToggle={setShowStops} toggleState={showStops()} />
+            <ToggleButton label={"Toggle Points"} onSetToggle={setShowPoints} toggleState={showPoints()} />
           </div>
         </div>
       </div >

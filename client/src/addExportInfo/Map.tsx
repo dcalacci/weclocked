@@ -31,6 +31,9 @@ const Map = (props:
     selectedCluster: number | undefined,
     selectedParticipant: string
     class?: string
+    showStops?: boolean
+    showClusters?: boolean
+    showPoints?: boolean
   }) => {
   let mapDiv: any;
   let layerGroup: LayerGroup = L.layerGroup();
@@ -99,7 +102,11 @@ const Map = (props:
 
     if (map) {
       layerGroup.clearLayers()
-      let layers = [stopLayer, locLayer, clusterLayer].flat()
+      console.log("cleared layers, re-rendering:", props.showPoints, props.showClusters, props.showStops)
+      let layers = [
+        props.showPoints ? locLayer : [],
+        props.showClusters ? clusterLayer : [],
+        props.showStops ? stopLayer : []].flat()
       layerGroup = L.layerGroup(layers)
       layerGroup.addTo(map)
     }
