@@ -17,12 +17,12 @@ const App: Component = () => {
 
   return (
     //@ts-ignore
-    <div class="absolute inset-0 h-screen">
+    <div class="absolute inset-0 h-full">
       {/* @ts-ignore */}
       < ToastProvider >
         {/* @ts-ignore */}
         < ExportsProvider >
-          <div class="container-fluid w-full h-full bg-white">
+          <div class="container-fluid w-full h-screen bg-white">
             <div class="w-full h-full overflow-y-scroll z-0">
               <Routes>
                 <Route path='/' element={<ExportWizard />} />
