@@ -48,7 +48,7 @@ const ExportWizard: Component = () => {
   );
 
   return (
-    <div class="content-center items-center justify-center w-full h-full pb-20">
+    <div class="content-center items-center justify-center w-full h-full">
       <div
         class="sm:max-w-lg 
 				w-full 
@@ -115,6 +115,7 @@ const ExportWizard: Component = () => {
           />
         </form>
       </div>
+      <div class="h-20"></div>
     </div >
   );
 };

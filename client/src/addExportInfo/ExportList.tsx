@@ -49,8 +49,9 @@ const Labeler = () => {
   }
 
   return (
-    <div class="flex-col content-center justify-center w-full h-screen md:pb-20">
-      <div class="w-full h-1/3">
+    <div class="flex-col content-center justify-center w-full md:pb-20">
+
+      <div class="w-full h-64 fixed top-0 z-50">
         <Map
           stops={stops() as Stops}
           locs={locs() as Locs}
@@ -63,7 +64,7 @@ const Labeler = () => {
         />
       </div>
 
-      <div class="grid grid-cols-1 grid-flow-row h-2/3 md:grid-cols-2 overflow-y-scroll">
+      <div class="grid grid-cols-1 grid-flow-row h-full pt-64 md:grid-cols-2 overflow-y-scroll">
         <div class="order-1 col-span-1 flex-shrink border-black border-b-2 content-center justify-between pt-1 px-2">
           <div class="flex flex-row flex-grow justify-between">
             <h1 class="text-xl font-semibold py-2">{selectedParticipant() ? selectedParticipant() : "No Participant Selected"}</h1>
@@ -175,7 +176,7 @@ const HourStats = (props: { participantID: string }) => {
 const ParticipantSelector = (props: { participants: string[], onSelectParticipant: (p: string) => void }) => {
   const [selected, setSelected] = createSignal(false)
   return (
-    <div class="relative inline-block text-left">
+    <div class="relative inline-block text-left z-10">
       <div>
         <button onClick={() => setSelected(!selected())}
           type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" id="menu-button" aria-expanded="true" aria-haspopup="true">

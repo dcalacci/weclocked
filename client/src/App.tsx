@@ -22,7 +22,7 @@ const App: Component = () => {
       < ToastProvider >
         {/* @ts-ignore */}
         < ExportsProvider >
-          <div class="container-fluid w-full bg-white">
+          <div class="container-fluid w-full h-full bg-white">
             <div class="w-full h-full overflow-y-scroll z-0">
               <Routes>
                 <Route path='/' element={<ExportWizard />} />
