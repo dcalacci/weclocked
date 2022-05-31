@@ -17,7 +17,7 @@ def get_trips(
         min_speed_kmh=20.0,
         stop_radius_factor=0.75,
         minutes_for_a_stop=minutes_for_stop,
-        spatial_radius_km=0.2,
+        spatial_radius_km=0.1,
         no_data_for_minutes=no_data_for_minutes,
     )
 

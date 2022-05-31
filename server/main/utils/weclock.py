@@ -64,7 +64,7 @@ class WeClockExport:
         return geodf
 
     # use .2 because it seems to work well heuristically. Can change in client if needed
-    def get_clusters(self, cluster_radius=.1, min_stops=1) -> TrajDataFrame or None:
+    def get_clusters(self, cluster_radius=.2, min_stops=2) -> TrajDataFrame or None:
         from . import geo
         # uses geo.cluster_stops to get a Data Frame with a new column for clusters
         if (len(self.geo_df()) < 5):
